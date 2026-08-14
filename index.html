@@ -2,21 +2,60 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Казначей класса</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 24px; }
-        .card { background: #f8f9fc; border-radius: 12px; padding: 16px; margin-bottom: 20px; }
-        .balance { font-size: 32px; font-weight: 700; }
+        body { 
+            font-family: -apple-system, 'Segoe UI', Roboto, sans-serif; 
+            background: #f0f2f5; 
+            padding: 12px; 
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            background: #fff; 
+            border-radius: 16px; 
+            padding: 16px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08); 
+        }
+        .card { background: #f8f9fc; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+        .balance { font-size: 28px; font-weight: 700; }
         .positive { color: #27ae60; }
         .negative { color: #e74c3c; }
-        .flex-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; }
-        .form-group { flex: 1 1 180px; margin-bottom: 8px; }
-        label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 4px; }
-        input, select { width: 100%; padding: 8px 12px; border: 1px solid #d0d7de; border-radius: 8px; font-size: 14px; background: #fff; }
-        .btn { background: #4f8cf7; color: #fff; border: none; padding: 8px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .flex-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+        .form-group { flex: 1 1 160px; margin-bottom: 6px; min-width: 120px; }
+        label { display: block; font-weight: 600; font-size: 13px; margin-bottom: 3px; }
+        input, select, textarea { 
+            width: 100%; 
+            padding: 8px 10px; 
+            border: 1px solid #d0d7de; 
+            border-radius: 8px; 
+            font-size: 14px; 
+            background: #fff;
+            -webkit-appearance: none;
+            appearance: none;
+            font-family: inherit;
+        }
+        textarea { resize: vertical; min-height: 60px; }
+        input[type="file"] { padding: 6px 4px; font-size: 12px; }
+        select { background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 8px center; background-size: 16px; padding-right: 32px; }
+        .btn { 
+            background: #4f8cf7; 
+            color: #fff; 
+            border: none; 
+            padding: 10px 18px; 
+            border-radius: 8px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: 0.2s; 
+            font-size: 14px;
+            min-height: 44px;
+            touch-action: manipulation;
+            white-space: nowrap;
+        }
+        .btn:active { transform: scale(0.97); }
         .btn:hover { background: #3a6fd4; }
         .btn-success { background: #2ecc71; }
         .btn-success:hover { background: #27ae60; }
@@ -26,52 +65,125 @@
         .btn-outline:hover { background: #4f8cf7; color: #fff; }
         .btn-warning { background: #f39c12; color: #fff; }
         .btn-warning:hover { background: #e67e22; }
-        .btn-sm { padding: 4px 12px; font-size: 12px; }
+        .btn-sm { padding: 6px 12px; font-size: 12px; min-height: 32px; }
         .btn-filter { background: #6c757d; color: #fff; }
         .btn-filter:hover { background: #5a6268; }
+        .btn-contact { background: #9b59b6; color: #fff; }
+        .btn-contact:hover { background: #8e44ad; }
         .hidden { display: none; }
-        .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-        .tab-btn { padding: 8px 20px; border: none; background: #e9ecf0; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        
+        .tabs { 
+            display: flex; 
+            gap: 6px; 
+            margin-bottom: 16px; 
+            flex-wrap: wrap;
+            padding-bottom: 4px;
+        }
+        .tab-btn { 
+            padding: 8px 14px; 
+            border: none; 
+            background: #e9ecf0; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            font-size: 13px;
+            white-space: nowrap;
+            touch-action: manipulation;
+            min-height: 40px;
+            flex: 0 0 auto;
+        }
         .tab-btn.active { background: #4f8cf7; color: #fff; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        th, td { padding: 10px 8px; border-bottom: 1px solid #e9ecf0; text-align: left; }
-        th { background: #f1f4f9; font-weight: 600; }
-        .badge { display: inline-block; padding: 2px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        
+        .table-wrapper { 
+            overflow-x: auto; 
+            -webkit-overflow-scrolling: touch;
+            margin: 0 -4px;
+            padding: 0 4px;
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            font-size: 13px; 
+            min-width: 500px;
+        }
+        th, td { 
+            padding: 8px 6px; 
+            border-bottom: 1px solid #e9ecf0; 
+            text-align: left; 
+            word-break: break-word;
+        }
+        th { background: #f1f4f9; font-weight: 600; white-space: nowrap; }
+        
+        .badge { 
+            display: inline-block; 
+            padding: 2px 10px; 
+            border-radius: 20px; 
+            font-size: 11px; 
+            font-weight: 600; 
+            white-space: nowrap;
+        }
         .badge.income { background: #d4edda; color: #155724; }
         .badge.expense { background: #f8d7da; color: #721c24; }
         .badge.debt { background: #fff3cd; color: #856404; }
         .badge.fund { background: #d1ecf1; color: #0c5460; }
         .badge.period { background: #e8daef; color: #6c3483; }
-        .delete-btn { background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 16px; padding: 0 4px; }
+        
+        .delete-btn { background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 16px; padding: 4px 6px; touch-action: manipulation; }
         .delete-btn:hover { color: #c0392b; }
-        .session-info { font-size: 13px; color: #888; margin-right: 12px; }
+        .session-info { font-size: 12px; color: #888; margin-right: 8px; }
+        
         .parents-list span { 
             background: #e9ecf0; 
-            padding: 2px 10px; 
+            padding: 2px 8px; 
             border-radius: 12px; 
             margin-right: 4px; 
             display: inline-block; 
-            margin-bottom: 4px;
-            font-size: 13px;
+            margin-bottom: 3px;
+            font-size: 12px;
         }
         .parents-list .remove-parent {
             cursor: pointer;
             color: #e74c3c;
             margin-left: 4px;
             font-weight: bold;
+            touch-action: manipulation;
         }
         .parents-list .remove-parent:hover { color: #c0392b; }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
-        .modal-content { background: #fff; margin: 10% auto; padding: 30px; border-radius: 16px; max-width: 420px; }
-        .modal-close { float: right; font-size: 24px; cursor: pointer; color: #888; }
+        
+        .modal { 
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.5); 
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content { 
+            background: #fff; 
+            margin: 16px; 
+            padding: 24px; 
+            border-radius: 16px; 
+            max-width: 420px; 
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        .modal-close { float: right; font-size: 24px; cursor: pointer; color: #888; touch-action: manipulation; padding: 0 8px; }
         .modal-close:hover { color: #000; }
-        .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 12px; }
+        
+        .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 12px; font-size: 14px; }
         .alert-danger { background: #f8d7da; color: #721c24; }
         .alert-success { background: #d4edda; color: #155724; }
-        .add-parent-row { display: flex; gap: 4px; align-items: center; margin-top: 4px; }
-        .add-parent-row input { flex: 1; padding: 4px 8px; font-size: 12px; border: 1px solid #ccc; border-radius: 4px; }
+        
+        .add-parent-row { display: flex; gap: 4px; align-items: center; margin-top: 4px; flex-wrap: wrap; }
+        .add-parent-row input { flex: 1; padding: 6px 8px; font-size: 12px; border: 1px solid #ccc; border-radius: 4px; min-width: 80px; }
         
         .search-container { position: relative; }
         .search-results {
@@ -82,7 +194,7 @@
             background: #fff;
             border: 1px solid #d0d7de;
             border-radius: 8px;
-            max-height: 200px;
+            max-height: 180px;
             overflow-y: auto;
             z-index: 100;
             display: none;
@@ -92,81 +204,239 @@
             padding: 8px 12px;
             cursor: pointer;
             border-bottom: 1px solid #f0f0f0;
-            font-size: 14px;
+            font-size: 13px;
+            touch-action: manipulation;
         }
+        .search-results .result-item:active { background: #e8edf5; }
         .search-results .result-item:hover { background: #f0f4ff; }
         .search-results .result-item .highlight { font-weight: 600; color: #4f8cf7; }
-        .search-results .result-item .sub-text { font-size: 12px; color: #888; margin-left: 8px; }
+        .search-results .result-item .sub-text { font-size: 11px; color: #888; margin-left: 8px; }
 
         .fund-tag {
             display: inline-block;
             background: #d1ecf1;
             color: #0c5460;
-            padding: 2px 10px;
+            padding: 2px 8px;
             border-radius: 12px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
+            margin: 2px 2px 2px 0;
         }
         .fund-tag .remove-fund {
             cursor: pointer;
             color: #e74c3c;
             margin-left: 4px;
             font-weight: bold;
+            touch-action: manipulation;
         }
         .fund-tag .remove-fund:hover { color: #c0392b; }
         .funds-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
 
         .filter-section {
             background: #f8f9fc;
-            padding: 12px 16px;
+            padding: 12px;
             border-radius: 8px;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
         .filter-section .flex-row { gap: 8px; }
-        .filter-section .form-group { margin-bottom: 0; flex: 1 1 150px; }
-        .filter-section .form-group label { font-size: 12px; }
+        .filter-section .form-group { flex: 1 1 130px; min-width: 100px; margin-bottom: 4px; }
+        .filter-section .form-group label { font-size: 11px; }
+        .filter-section .btn { padding: 6px 12px; font-size: 12px; min-height: 36px; }
 
-        .period-selector { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-        .period-selector .btn { padding: 6px 14px; font-size: 13px; }
+        .period-selector { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+        .period-selector .btn { padding: 6px 12px; font-size: 12px; min-height: 36px; }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .file-preview {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            object-fit: cover;
+            cursor: pointer;
+        }
+        .file-preview:hover { opacity: 0.8; }
+        .file-preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 4px;
+        }
+        .file-preview-container .preview-item {
+            position: relative;
+            display: inline-block;
+        }
+        .file-preview-container .remove-file {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+        }
+
+        .contact-info {
+            text-align: center;
+            padding: 8px 0;
+        }
+        .contact-info .name { font-size: 18px; font-weight: 700; color: #2c3e50; }
+        .contact-info .phone { font-size: 16px; color: #2980b9; margin: 4px 0; }
+        .contact-info .email { font-size: 14px; color: #7f8c8d; }
+
+        .edit-btn, .delete-btn {
+            padding: 2px 8px !important;
+            font-size: 11px !important;
+            min-height: unset !important;
+            width: auto !important;
+        }
+        .table-wrapper td:last-child {
+            white-space: nowrap;
+        }
 
         @media (max-width: 768px) {
-            .container { padding: 16px; }
-            .flex-row { flex-direction: column; align-items: stretch; }
-            .modal-content { margin: 20% 16px; }
+            body { padding: 8px; }
+            .container { padding: 12px; border-radius: 12px; }
+            .card { padding: 12px; }
+            h1 { font-size: 22px; }
+            h3 { font-size: 17px; }
+            h4 { font-size: 15px; }
+            .balance { font-size: 24px; }
+            
+            .flex-row { flex-direction: column; align-items: stretch; gap: 8px; }
+            .form-group { flex: 1 1 auto; min-width: unset; margin-bottom: 4px; }
+            .form-group label { font-size: 12px; }
+            input, select, textarea { padding: 10px 12px; font-size: 16px; }
+            
+            .btn { 
+                padding: 12px 16px; 
+                font-size: 15px; 
+                min-height: 48px;
+                width: 100%;
+                justify-content: center;
+            }
+            .btn-sm { padding: 8px 12px; font-size: 13px; min-height: 38px; width: auto; }
+            .btn-outline { width: auto; }
+            
+            .tabs { 
+                gap: 4px; 
+                padding-bottom: 4px;
+                flex-wrap: wrap;
+            }
+            .tab-btn { 
+                padding: 8px 12px; 
+                font-size: 12px; 
+                min-height: 36px;
+                flex: 1 1 auto;
+                text-align: center;
+            }
+            
+            .table-wrapper { margin: 0 -8px; padding: 0 8px; }
+            table { font-size: 12px; min-width: 400px; }
+            th, td { padding: 6px 4px; }
+            
+            .modal-content { margin: 12px; padding: 20px; }
+            
+            .filter-section .flex-row { flex-direction: column; gap: 6px; }
+            .filter-section .form-group { flex: 1 1 auto; }
+            .filter-section .btn { width: 100%; }
+            
+            .period-selector { flex-direction: row; flex-wrap: wrap; }
+            .period-selector .btn { flex: 1 1 auto; min-width: 80px; width: auto; }
+            
+            .add-parent-row { flex-wrap: wrap; }
+            .add-parent-row input { min-width: 120px; }
+            
+            .search-results { max-height: 150px; }
+            .search-results .result-item { padding: 10px 12px; font-size: 14px; }
+            
+            .funds-list { gap: 3px; }
+            .fund-tag { font-size: 10px; padding: 2px 6px; }
+            
+            .header-actions { width: 100%; justify-content: flex-start; }
+            
+            .file-preview { max-width: 80px; max-height: 80px; }
+            
+            .edit-btn, .delete-btn {
+                padding: 2px 6px !important;
+                font-size: 10px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 4px; }
+            .container { padding: 8px; }
+            .card { padding: 10px; margin-bottom: 10px; }
+            h1 { font-size: 18px; }
+            .balance { font-size: 20px; }
+            
+            table { font-size: 11px; min-width: 320px; }
+            th, td { padding: 4px 3px; }
+            
+            .tab-btn { font-size: 11px; padding: 6px 10px; min-height: 32px; }
+            .btn { font-size: 14px; padding: 10px 14px; min-height: 44px; }
+            .btn-sm { font-size: 11px; padding: 4px 10px; min-height: 30px; }
+            
+            .modal-content { padding: 16px; margin: 8px; }
+            
+            .header-actions .btn-sm { font-size: 10px; padding: 4px 8px; min-height: 28px; }
+            .file-preview { max-width: 60px; max-height: 60px; }
+            
+            .edit-btn, .delete-btn {
+                padding: 2px 4px !important;
+                font-size: 9px !important;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .tabs { gap: 2px; }
+            .tab-btn { font-size: 10px; padding: 4px 8px; min-height: 28px; }
+            table { font-size: 10px; min-width: 280px; }
+            th, td { padding: 3px 2px; }
+            
+            .header-actions .btn-sm { font-size: 9px; padding: 3px 6px; min-height: 24px; }
+            .edit-btn, .delete-btn {
+                font-size: 8px !important;
+                padding: 1px 3px !important;
+            }
         }
     </style>
 </head>
 <body>
 
 <div class="container" id="app">
-    <div id="loginPage">
-        <h1>🔐 Казначей класса</h1>
-        <div class="card">
-            <div class="form-group">
-                <label>Пароль</label>
-                <input type="password" id="loginPassword" placeholder="Введите пароль">
-            </div>
-            <button class="btn" id="loginBtn">Войти</button>
-            <div id="loginError" class="alert alert-danger hidden" style="margin-top:12px;"></div>
-        </div>
-    </div>
-
-    <div id="mainPage" class="hidden">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom:16px;">
-            <h1>📊 Казначей класса</h1>
-            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                <span class="session-info">🔒 Сессия активна</span>
-                <button class="btn btn-outline" id="changePasswordBtn">🔑 Сменить пароль</button>
-                <button class="btn btn-outline" id="exportBtn">📥 Экспорт</button>
-                <button class="btn btn-outline" id="importBtn">📤 Импорт</button>
+    <!-- ОСНОВНОЙ ИНТЕРФЕЙС -->
+    <div id="mainPage">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+            <h1 style="font-size:20px; margin:0;">📊 Казначей класса</h1>
+            <div class="header-actions">
+                <button class="btn btn-contact btn-sm" id="contactBtn">💬 Связь с автором</button>
+                <button class="btn btn-outline btn-sm" id="changePasswordBtn">🔑 Сменить пароль</button>
+                <button class="btn btn-outline btn-sm" id="exportBtn">📥 Экспорт</button>
+                <button class="btn btn-success btn-sm" id="exportParentBtn">📤 Экспорт для родителей</button>
+                <button class="btn btn-outline btn-sm" id="importBtn">📤 Импорт</button>
                 <input type="file" id="importFile" accept=".json" style="display:none;">
-                <button class="btn btn-danger" id="logoutBtn">Выход</button>
+                <button class="btn btn-danger btn-sm" id="clearDataBtn">🗑️ Очистить данные</button>
             </div>
         </div>
 
-        <div class="card" style="background:#eef3fc;">
+        <div class="card" style="background:#eef3fc; padding:12px 16px;">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
-                <span style="font-size:18px;">Текущий баланс</span>
+                <span style="font-size:16px; font-weight:600;">Баланс</span>
                 <span class="balance" id="balanceDisplay">0 ₽</span>
             </div>
         </div>
@@ -180,18 +450,23 @@
             <button class="tab-btn" data-tab="tabReport">📈 Отчёт</button>
         </div>
 
+        <!-- Операции -->
         <div id="tabOperations" class="tab-content active">
-            <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:12px;">
-                <div class="form-group" style="flex:0 0 150px;"><label>С</label><input type="date" id="filterFrom"></div>
-                <div class="form-group" style="flex:0 0 150px;"><label>По</label><input type="date" id="filterTo"></div>
-                <button class="btn" id="filterApply">Применить</button>
-                <button class="btn btn-outline" id="filterClear">Сбросить</button>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
+                <div class="form-group" style="flex:0 0 130px;"><label>С</label><input type="date" id="filterFrom"></div>
+                <div class="form-group" style="flex:0 0 130px;"><label>По</label><input type="date" id="filterTo"></div>
+                <button class="btn btn-sm" id="filterApply" style="flex:0 0 auto;">Применить</button>
+                <button class="btn btn-outline btn-sm" id="filterClear" style="flex:0 0 auto;">Сбросить</button>
             </div>
-            <table><thead><tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>Описание</th></tr></thead>
-                <tbody id="tableBody"><tr><td colspan="4" style="text-align:center;color:#999;">Нет операций</td></tr></tbody>
-            </table>
+            <div class="table-wrapper">
+                <table>
+                    <thead><tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>Описание</th><th>Чек</th><th>Действия</th></tr></thead>
+                    <tbody id="tableBody"><tr><td colspan="7" style="text-align:center;color:#999;">Нет операций</td></tr></tbody>
+                </table>
+            </div>
         </div>
 
+        <!-- Приход -->
         <div id="tabAddIncome" class="tab-content">
             <div class="card">
                 <h3>➕ Добавить приход</h3>
@@ -201,9 +476,9 @@
                         <input type="number" id="incomeAmount" step="0.01" placeholder="0.00">
                     </div>
                     <div class="form-group" style="flex:2;">
-                        <label>🔍 Быстрый поиск (ученик или родитель)</label>
+                        <label>🔍 Быстрый поиск</label>
                         <div class="search-container">
-                            <input type="text" id="searchInput" placeholder="Начните вводить имя..." autocomplete="off">
+                            <input type="text" id="searchInput" placeholder="Имя ученика или родителя..." autocomplete="off">
                             <div class="search-results" id="searchResults"></div>
                         </div>
                     </div>
@@ -211,15 +486,11 @@
                 <div class="flex-row">
                     <div class="form-group">
                         <label>Ребёнок</label>
-                        <select id="incomeChild">
-                            <option value="">Выберите из списка</option>
-                        </select>
+                        <select id="incomeChild"><option value="">Выберите из списка</option></select>
                     </div>
                     <div class="form-group">
                         <label>Плательщик</label>
-                        <select id="incomeParent">
-                            <option value="">Выберите из списка</option>
-                        </select>
+                        <select id="incomeParent"><option value="">Выберите из списка</option></select>
                     </div>
                     <div class="form-group">
                         <label>Дата</label>
@@ -234,12 +505,9 @@
                     <div class="form-group">
                         <label>Тип взноса</label>
                         <select id="incomeFundType">
-                            <option value="Общий сбор">Общий сбор</option>
-                            <option value="Театр">Театр</option>
-                            <option value="Подарки">Подарки</option>
-                            <option value="Экскурсия">Экскурсия</option>
-                            <option value="Канцтовары">Канцтовары</option>
-                            <option value="Другое">Другое</option>
+                            <option>Общий сбор</option><option>Театр</option>
+                            <option>Подарки</option><option>Экскурсия</option>
+                            <option>Канцтовары</option><option>Другое</option>
                         </select>
                     </div>
                 </div>
@@ -248,18 +516,18 @@
 
             <div class="card">
                 <h4>📋 Последние приходы</h4>
-                <div style="overflow-x:auto; max-height:300px; overflow-y:auto;">
+                <div class="table-wrapper" style="max-height:250px; overflow-y:auto;">
                     <table>
-                        <thead><tr><th>Дата</th><th>Ученик</th><th>Плательщик</th><th>Сумма</th><th>Тип</th><th>Комментарий</th></tr></thead>
+                        <thead><tr><th>Дата</th><th>Ученик</th><th>Сумма</th><th>Тип</th></tr></thead>
                         <tbody id="recentIncomesTable">
-                            <tr><td colspan="6" style="text-align:center;color:#999;">Нет приходов</td></tr>
+                            <tr><td colspan="4" style="text-align:center;color:#999;">Нет приходов</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- Расход (с добавленным списком) -->
+        <!-- Расход -->
         <div id="tabAddExpense" class="tab-content">
             <div class="card">
                 <h3>➖ Добавить расход</h3>
@@ -271,11 +539,8 @@
                     <div class="form-group">
                         <label>Категория</label>
                         <select id="expenseCategory">
-                            <option>Канцтовары</option>
-                            <option>Подарки</option>
-                            <option>Мероприятия</option>
-                            <option>Хознужды</option>
-                            <option>Прочее</option>
+                            <option>Канцтовары</option><option>Подарки</option>
+                            <option>Мероприятия</option><option>Хознужды</option><option>Прочее</option>
                         </select>
                     </div>
                 </div>
@@ -289,31 +554,39 @@
                         <input type="text" id="expenseDescription" placeholder="что и для кого купили">
                     </div>
                 </div>
+                <div class="flex-row">
+                    <div class="form-group" style="flex:2;">
+                        <label>📎 Чек/фото (можно несколько)</label>
+                        <input type="file" id="expenseFiles" accept="image/*,.pdf" multiple>
+                        <div class="file-preview-container" id="expenseFilesPreview"></div>
+                    </div>
+                </div>
                 <button class="btn btn-danger" id="addExpenseBtn">➖ Добавить расход</button>
             </div>
 
             <div class="card">
                 <h4>📋 Последние расходы</h4>
-                <div style="overflow-x:auto; max-height:300px; overflow-y:auto;">
+                <div class="table-wrapper" style="max-height:250px; overflow-y:auto;">
                     <table>
-                        <thead><tr><th>Дата</th><th>Сумма</th><th>Категория</th><th>Описание</th></tr></thead>
+                        <thead><tr><th>Дата</th><th>Сумма</th><th>Категория</th><th>Описание</th><th>Чек</th></tr></thead>
                         <tbody id="recentExpensesTable">
-                            <tr><td colspan="4" style="text-align:center;color:#999;">Нет расходов</td></tr>
+                            <tr><td colspan="5" style="text-align:center;color:#999;">Нет расходов</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
+        <!-- Класс -->
         <div id="tabClass" class="tab-content">
             <div class="card">
                 <h3>👨‍👩‍👧‍👦 Ученики и их родственники</h3>
                 <div class="flex-row">
                     <div class="form-group"><label>ФИО ученика</label><input type="text" id="childName"></div>
-                    <div class="form-group"><label>ФИО родственника</label><input type="text" id="parentName" placeholder="родитель, бабушка и т.д."></div>
+                    <div class="form-group"><label>ФИО родственника</label><input type="text" id="parentName" placeholder="родитель, бабушка..."></div>
                     <button class="btn btn-success" id="addChildBtn">➕ Добавить ученика</button>
                 </div>
-                <div style="margin-top:16px; overflow-x:auto;">
+                <div class="table-wrapper">
                     <table>
                         <thead><tr><th>#</th><th>Ученик</th><th>Родственники</th><th>Действие</th></tr></thead>
                         <tbody id="classTableBody"><tr><td colspan="4" style="text-align:center;color:#999;">Нет учеников</td></tr></tbody>
@@ -322,31 +595,30 @@
             </div>
         </div>
 
+        <!-- Взносы -->
         <div id="tabFees" class="tab-content">
             <div class="card">
                 <h3>📅 Управление взносами</h3>
                 
-                <div class="flex-row" style="margin-bottom:16px;">
+                <div class="flex-row" style="margin-bottom:12px;">
                     <div class="form-group" style="flex:2;">
-                        <label>Название нового фонда/взноса</label>
-                        <input type="text" id="newFundName" placeholder="например: Сбор на театр">
+                        <label>Название нового фонда</label>
+                        <input type="text" id="newFundName" placeholder="Сбор на театр">
                     </div>
                     <button class="btn btn-warning" id="addFundBtn">➕ Добавить фонд</button>
                 </div>
 
-                <div style="margin-bottom:16px;">
+                <div style="margin-bottom:12px;">
                     <label>Существующие фонды:</label>
                     <div class="funds-list" id="fundsList">
                         <span style="color:#999;">Нет фондов</span>
                     </div>
                 </div>
 
-                <div class="flex-row" style="border-top:1px solid #e9ecf0; padding-top:16px;">
+                <div class="flex-row" style="border-top:1px solid #e9ecf0; padding-top:12px;">
                     <div class="form-group">
                         <label>Выберите фонд</label>
-                        <select id="feeFundSelect">
-                            <option value="">Выберите фонд</option>
-                        </select>
+                        <select id="feeFundSelect"><option value="">Выберите фонд</option></select>
                     </div>
                     <div class="form-group">
                         <label>Периодичность</label>
@@ -363,13 +635,13 @@
                         <input type="month" id="feeMonth">
                     </div>
                     <div class="form-group">
-                        <label>Сумма взноса (₽)</label>
+                        <label>Сумма (₽)</label>
                         <input type="number" id="feeAmount" step="0.01" placeholder="0.00">
                     </div>
                     <button class="btn btn-success" id="setFeeBtn">✅ Установить взнос</button>
                 </div>
 
-                <div style="margin-top:20px;">
+                <div style="margin-top:16px;">
                     <h4>Задолженности</h4>
                     
                     <div class="filter-section">
@@ -380,9 +652,7 @@
                             </div>
                             <div class="form-group">
                                 <label>Тип сбора</label>
-                                <select id="debtFilterFund">
-                                    <option value="">Все фонды</option>
-                                </select>
+                                <select id="debtFilterFund"><option value="">Все фонды</option></select>
                             </div>
                             <div class="form-group">
                                 <label>Периодичность</label>
@@ -399,12 +669,12 @@
                                 <label>Месяц</label>
                                 <input type="month" id="debtFilterMonth">
                             </div>
-                            <button class="btn btn-filter" id="debtFilterApply">🔍 Применить фильтр</button>
-                            <button class="btn btn-outline" id="debtFilterClear">Сбросить</button>
+                            <button class="btn btn-filter" id="debtFilterApply">🔍 Применить</button>
+                            <button class="btn btn-outline" id="debtFilterClear">✕ Сбросить</button>
                         </div>
                     </div>
 
-                    <div style="margin-top:12px; overflow-x:auto;">
+                    <div class="table-wrapper">
                         <table>
                             <thead><tr><th>Ученик</th><th>Фонд</th><th>Период</th><th>Обязательно</th><th>Внесено</th><th>Задолженность</th></tr></thead>
                             <tbody id="debtTableBody">
@@ -416,41 +686,42 @@
             </div>
         </div>
 
-        <!-- Отчёт (расширенный) -->
+        <!-- Отчёт -->
         <div id="tabReport" class="tab-content">
             <div class="card">
-                <h3>📈 Отчёт</h3>
+                <h3>📈 Отчёт за период</h3>
                 
-                <div style="margin-bottom:16px;">
-                    <label style="font-weight:600; display:block; margin-bottom:8px;">Быстрый выбор периода:</label>
+                <div style="margin-bottom:12px;">
+                    <label style="font-weight:600; display:block; margin-bottom:6px; font-size:14px;">Быстрый выбор периода:</label>
                     <div class="period-selector">
-                        <button class="btn btn-outline period-btn" data-period="month">Текущий месяц</button>
-                        <button class="btn btn-outline period-btn" data-period="quarter">Текущий квартал</button>
-                        <button class="btn btn-outline period-btn" data-period="halfyear">Текущее полугодие</button>
-                        <button class="btn btn-outline period-btn" data-period="year">Текущий год</button>
-                        <button class="btn btn-outline period-btn" data-period="all">За всё время</button>
+                        <button class="btn btn-outline btn-sm period-btn" data-period="month">📅 Месяц</button>
+                        <button class="btn btn-outline btn-sm period-btn" data-period="quarter">📅 Квартал</button>
+                        <button class="btn btn-outline btn-sm period-btn" data-period="halfyear">📅 Полугодие</button>
+                        <button class="btn btn-outline btn-sm period-btn" data-period="year">📅 Год</button>
+                        <button class="btn btn-outline btn-sm period-btn" data-period="all">📅 Всё</button>
                     </div>
                 </div>
 
-                <div class="flex-row" style="border-top:1px solid #e9ecf0; padding-top:16px;">
+                <div class="flex-row" style="border-top:1px solid #e9ecf0; padding-top:12px;">
                     <div class="form-group">
-                        <label>С (начало периода)</label>
+                        <label>С (начало)</label>
                         <input type="date" id="reportFrom">
                     </div>
                     <div class="form-group">
-                        <label>По (конец периода)</label>
+                        <label>По (конец)</label>
                         <input type="date" id="reportTo">
                     </div>
-                    <button class="btn" id="reportGenerate">Сформировать</button>
-                    <button class="btn btn-outline" id="reportClear">Очистить</button>
+                    <button class="btn" id="reportGenerate">📊 Сформировать</button>
+                    <button class="btn btn-outline" id="reportClear">🗑️ Очистить</button>
                 </div>
 
-                <div id="reportResult" style="margin-top:16px;"></div>
+                <div id="reportResult" style="margin-top:12px;"></div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Модалка смены пароля -->
 <div id="changePasswordModal" class="modal">
     <div class="modal-content">
         <span class="modal-close" id="modalClose">&times;</span>
@@ -458,8 +729,38 @@
         <div id="passwordChangeMessage" class="hidden"></div>
         <div class="form-group"><label>Текущий пароль</label><input type="password" id="oldPassword"></div>
         <div class="form-group"><label>Новый пароль</label><input type="password" id="newPassword"></div>
-        <div class="form-group"><label>Повторите</label><input type="password" id="newPasswordConfirm"></div>
-        <button class="btn" id="changePasswordConfirmBtn">Сменить</button>
+        <div class="form-group"><label>Повторите новый пароль</label><input type="password" id="newPasswordConfirm"></div>
+        <button class="btn" id="changePasswordConfirmBtn">Сменить пароль</button>
+    </div>
+</div>
+
+<!-- Модалка "Связь с автором" -->
+<div id="contactModal" class="modal">
+    <div class="modal-content">
+        <span class="modal-close" id="contactModalClose">&times;</span>
+        <h2 style="text-align:center;">💬 Связь с автором</h2>
+        <div class="contact-info">
+            <div class="name">Волков Дмитрий Владимирович</div>
+            <div class="phone">📞 <a href="tel:+79780964206" style="color:#2980b9; text-decoration:none;">+7-978-096-42-06</a></div>
+            <div class="email">✉️ <a href="mailto:volkov_154@list.ru" style="color:#2980b9; text-decoration:none;">volkov_154@list.ru</a></div>
+            <div style="margin-top:12px; font-size:13px; color:#7f8c8d;">
+                По всем вопросам работы приложения<br>
+                вы можете связаться с автором.
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модалка редактирования операции -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <span class="modal-close" id="editModalClose">&times;</span>
+        <h2 id="editModalTitle">✏️ Редактирование операции</h2>
+        <div id="editModalContent"></div>
+        <div style="display:flex; gap:8px; margin-top:16px; flex-wrap:wrap;">
+            <button class="btn btn-success" id="editSaveBtn">💾 Сохранить</button>
+            <button class="btn btn-outline" id="editCancelBtn">Отмена</button>
+        </div>
     </div>
 </div>
 
@@ -475,7 +776,6 @@ console.log('✅ Скрипт запущен');
 // === ДАННЫЕ ===
 const PASSWORD_KEY = 'class_treasurer_password';
 const DATA_KEY = 'class_treasurer_data';
-const SESSION_KEY = 'class_treasurer_session';
 
 function getDefaultData() {
     return { 
@@ -594,9 +894,10 @@ function removeParentFromChild(childId, parentId) {
 function addTransaction(tr) {
     try {
         const data = loadData();
-        tr.id = Date.now() + Math.random();
+        tr.id = Date.now().toString() + '_' + Math.random().toString(36).substr(2, 6);
         data.transactions.push(tr);
         saveData(data);
+        console.log('✅ Транзакция добавлена, ID:', tr.id);
     } catch(e) {
         console.error('❌ Ошибка addTransaction:', e);
         alert('Ошибка: ' + e.message);
@@ -702,7 +1003,6 @@ function calculateDebts(month, filterName, filterFund, filterPeriod) {
     }
 }
 
-// === ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ДЛЯ ОТЧЁТОВ ===
 function getPeriodDates(period) {
     const now = new Date();
     const year = now.getFullYear();
@@ -746,7 +1046,7 @@ function renderTransactions(list) {
         const tbody = document.getElementById('tableBody');
         if (!tbody) return;
         if (!list || list.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#999;">Нет операций</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;">Нет операций</td></tr>';
             return;
         }
         const sorted = [...list].sort((a,b) => a.date < b.date ? 1 : -1);
@@ -755,21 +1055,133 @@ function renderTransactions(list) {
             const typeLabel = t.type === 'income' ? 'Приход' : 'Расход';
             const badge = t.type === 'income' ? 'income' : 'expense';
             let desc = '';
+            let fileHtml = '';
             if (t.type === 'income') {
                 const child = findChild(t.childId);
                 const childName = child ? child.name : 'неизвестный ученик';
                 desc = `${childName} — от: ${t.parentName || 'не указан'}` + (t.comment ? ' ('+t.comment+')' : '');
                 if (t.fund) desc += ` [${t.fund}]`;
+                fileHtml = '—';
             } else {
                 desc = (t.description || '') + ' (' + (t.category || 'без категории') + ')';
+                if (t.files && t.files.length > 0) {
+                    const idStr = t.id.toString();
+                    fileHtml = `<span style="cursor:pointer;color:#4f8cf7;text-decoration:underline;" onclick="showFilePreview('${idStr}')">📎 ${t.files.length}</span>`;
+                } else {
+                    fileHtml = '—';
+                }
             }
-            html += `<tr><td>${t.date}</td><td><span class="badge ${badge}">${typeLabel}</span></td><td>${t.amount.toFixed(2)} ₽</td><td>${desc}</td></tr>`;
+            const idStr = t.id.toString();
+            html += `<tr>
+                <td>${t.date}</td>
+                <td><span class="badge ${badge}">${typeLabel}</span></td>
+                <td>${t.amount.toFixed(2)} ₽</td>
+                <td>${desc}</td>
+                <td>${fileHtml}</td>
+                <td>
+                    <button class="btn btn-outline btn-sm edit-btn" data-id="${idStr}" style="padding:2px 8px; font-size:11px;">✏️</button>
+                    <button class="btn btn-danger btn-sm delete-btn" data-id="${idStr}" style="padding:2px 8px; font-size:11px;">🗑️</button>
+                </td>
+            </tr>`;
         });
         tbody.innerHTML = html;
+        
+        tbody.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.dataset.id;
+                openEditModal(id);
+            });
+        });
+        
+        tbody.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.dataset.id;
+                if (confirm('Удалить эту операцию?')) {
+                    deleteTransaction(id);
+                }
+            });
+        });
     } catch(e) {
         console.error('❌ Ошибка renderTransactions:', e);
     }
 }
+
+window.showFilePreview = function(transactionId) {
+    try {
+        console.log('🔍 Показ файла для транзакции:', transactionId);
+        const transactions = getTransactions();
+        const tr = transactions.find(t => t.id.toString() === transactionId.toString());
+        
+        if (!tr) {
+            alert('Транзакция не найдена');
+            return;
+        }
+        
+        if (!tr.files || tr.files.length === 0) {
+            alert('Нет прикреплённых файлов');
+            return;
+        }
+        
+        const firstFile = tr.files[0];
+        if (!firstFile.data) {
+            alert('Файл повреждён или не содержит данных');
+            return;
+        }
+        
+        const win = window.open('', '_blank');
+        if (win) {
+            win.document.write(`
+                <html>
+                    <head>
+                        <title>Чек - ${firstFile.name || 'просмотр'}</title>
+                        <style>
+                            body {
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                min-height: 100vh;
+                                margin: 0;
+                                background: #f0f2f5;
+                                font-family: sans-serif;
+                            }
+                            .container {
+                                max-width: 95%;
+                                max-height: 95vh;
+                                text-align: center;
+                            }
+                            img {
+                                max-width: 100%;
+                                max-height: 85vh;
+                                border-radius: 8px;
+                                box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+                            }
+                            .info {
+                                margin-top: 12px;
+                                color: #666;
+                                font-size: 14px;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            <img src="${firstFile.data}" alt="Чек">
+                            <div class="info">
+                                📄 ${firstFile.name || 'Чек'} 
+                                ${tr.files.length > 1 ? `(+ ещё ${tr.files.length - 1} файлов)` : ''}
+                            </div>
+                        </div>
+                    </body>
+                </html>
+            `);
+            win.document.close();
+        } else {
+            alert('Пожалуйста, разрешите всплывающие окна для этого сайта');
+        }
+    } catch(e) {
+        console.error('❌ Ошибка показа файла:', e);
+        alert('Ошибка при открытии файла: ' + e.message);
+    }
+};
 
 function renderRecentIncomes() {
     try {
@@ -780,7 +1192,7 @@ function renderRecentIncomes() {
         const incomes = transactions.filter(t => t.type === 'income');
         
         if (incomes.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;">Нет приходов</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#999;">Нет приходов</td></tr>';
             return;
         }
         
@@ -794,10 +1206,8 @@ function renderRecentIncomes() {
             html += `<tr>
                 <td>${t.date}</td>
                 <td><strong>${childName}</strong></td>
-                <td>${t.parentName || 'не указан'}</td>
                 <td>${t.amount.toFixed(2)} ₽</td>
                 <td><span class="fund-tag">${t.fund || 'Общий сбор'}</span></td>
-                <td>${t.comment || ''}</td>
             </tr>`;
         });
         tbody.innerHTML = html;
@@ -815,7 +1225,7 @@ function renderRecentExpenses() {
         const expenses = transactions.filter(t => t.type === 'expense');
         
         if (expenses.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#999;">Нет расходов</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;">Нет расходов</td></tr>';
             return;
         }
         
@@ -824,11 +1234,17 @@ function renderRecentExpenses() {
         
         let html = '';
         recent.forEach(t => {
+            let fileHtml = '—';
+            if (t.files && t.files.length > 0) {
+                const idStr = t.id.toString();
+                fileHtml = `<span style="cursor:pointer;color:#4f8cf7;text-decoration:underline;" onclick="showFilePreview('${idStr}')">📎 ${t.files.length}</span>`;
+            }
             html += `<tr>
                 <td>${t.date}</td>
                 <td>${t.amount.toFixed(2)} ₽</td>
                 <td><span class="badge expense">${t.category || 'без категории'}</span></td>
                 <td>${t.description || ''}</td>
+                <td>${fileHtml}</td>
             </tr>`;
         });
         tbody.innerHTML = html;
@@ -1159,12 +1575,6 @@ function performSearch(query) {
     }
 }
 
-// === СЕССИЯ И ПАРОЛЬ ===
-
-function startSession() { localStorage.setItem(SESSION_KEY, 'true'); }
-function endSession() { localStorage.removeItem(SESSION_KEY); }
-function isSessionActive() { return localStorage.getItem(SESSION_KEY) === 'true'; }
-
 function changePassword(oldPwd, newPwd, confirmPwd) {
     try {
         const stored = localStorage.getItem(PASSWORD_KEY);
@@ -1180,91 +1590,243 @@ function changePassword(oldPwd, newPwd, confirmPwd) {
     }
 }
 
+function clearAllData() {
+    if (confirm('⚠️ ВНИМАНИЕ! Это действие удалит ВСЕ данные: учеников, взносы, операции, фонды. Продолжить?')) {
+        if (confirm('Вы уверены? Данные будут удалены безвозвратно!')) {
+            localStorage.removeItem(DATA_KEY);
+            const defaultData = getDefaultData();
+            saveData(defaultData);
+            refreshUI();
+            alert('✅ Все данные очищены');
+        }
+    }
+}
+
+// === ЭКСПОРТ ДЛЯ РОДИТЕЛЕЙ ===
+function exportForParents() {
+    try {
+        const data = loadData();
+        const children = data.children || [];
+        const transactions = data.transactions || [];
+        const funds = data.funds || ['Общий сбор'];
+        
+        let balance = 0;
+        transactions.forEach(t => {
+            if (t.type === 'income') balance += t.amount;
+            else balance -= t.amount;
+        });
+        
+        let totalIncome = 0;
+        let totalExpense = 0;
+        transactions.forEach(t => {
+            if (t.type === 'income') totalIncome += t.amount;
+            else totalExpense += t.amount;
+        });
+        
+        const parentData = {
+            version: '1.0',
+            exportDate: new Date().toISOString().split('T')[0],
+            exportTime: new Date().toLocaleTimeString(),
+            balance: balance,
+            totalIncome: totalIncome,
+            totalExpense: totalExpense,
+            funds: funds,
+            children: children.map(child => ({
+                id: child.id,
+                name: child.name,
+                parents: child.parents.map(p => p.name)
+            })),
+            transactions: transactions.map(t => {
+                const child = children.find(c => c.id === t.childId);
+                return {
+                    id: t.id,
+                    date: t.date,
+                    type: t.type,
+                    amount: t.amount,
+                    childName: child ? child.name : null,
+                    parentName: t.parentName || null,
+                    fund: t.fund || null,
+                    comment: t.comment || null,
+                    description: t.description || null,
+                    category: t.category || null,
+                    files: t.files || []
+                };
+            }),
+            summary: {
+                totalIncome: totalIncome,
+                totalExpense: totalExpense,
+                balance: balance
+            }
+        };
+        
+        const json = JSON.stringify(parentData, null, 2);
+        const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `parents_data_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        alert('✅ Файл для родителей успешно создан и скачан!');
+    } catch(err) {
+        console.error('❌ Ошибка экспорта для родителей:', err);
+        alert('Ошибка: ' + err.message);
+    }
+}
+
+// === ФУНКЦИИ ДЛЯ РЕДАКТИРОВАНИЯ И УДАЛЕНИЯ ===
+
+function deleteTransaction(id) {
+    try {
+        const data = loadData();
+        const index = data.transactions.findIndex(t => t.id.toString() === id.toString());
+        if (index === -1) {
+            alert('Транзакция не найдена');
+            return;
+        }
+        data.transactions.splice(index, 1);
+        saveData(data);
+        refreshUI();
+        alert('✅ Операция удалена');
+    } catch(e) {
+        console.error('❌ Ошибка deleteTransaction:', e);
+        alert('Ошибка: ' + e.message);
+    }
+}
+
+function editTransaction(id, updatedData) {
+    try {
+        const data = loadData();
+        const index = data.transactions.findIndex(t => t.id.toString() === id.toString());
+        if (index === -1) {
+            alert('Транзакция не найдена');
+            return;
+        }
+        const transaction = data.transactions[index];
+        transaction.amount = updatedData.amount || transaction.amount;
+        transaction.date = updatedData.date || transaction.date;
+        transaction.comment = updatedData.comment || transaction.comment || '';
+        transaction.description = updatedData.description || transaction.description || '';
+        transaction.category = updatedData.category || transaction.category || '';
+        transaction.parentName = updatedData.parentName || transaction.parentName || '';
+        transaction.fund = updatedData.fund || transaction.fund || '';
+        
+        if (transaction.type === 'income' && updatedData.childId !== undefined) {
+            transaction.childId = updatedData.childId;
+        }
+        
+        saveData(data);
+        refreshUI();
+        alert('✅ Операция обновлена');
+    } catch(e) {
+        console.error('❌ Ошибка editTransaction:', e);
+        alert('Ошибка: ' + e.message);
+    }
+}
+
+function openEditModal(id) {
+    try {
+        const transactions = getTransactions();
+        const transaction = transactions.find(t => t.id.toString() === id.toString());
+        if (!transaction) {
+            alert('Транзакция не найдена');
+            return;
+        }
+        
+        const modal = document.getElementById('editModal');
+        const content = document.getElementById('editModalContent');
+        const title = document.getElementById('editModalTitle');
+        
+        title.textContent = transaction.type === 'income' ? '✏️ Редактирование прихода' : '✏️ Редактирование расхода';
+        
+        let html = '';
+        
+        html += `
+            <div class="form-group">
+                <label>Сумма (₽)</label>
+                <input type="number" id="editAmount" step="0.01" value="${transaction.amount}">
+            </div>
+            <div class="form-group">
+                <label>Дата</label>
+                <input type="date" id="editDate" value="${transaction.date || new Date().toISOString().split('T')[0]}">
+            </div>
+        `;
+        
+        if (transaction.type === 'income') {
+            const children = getChildren();
+            html += `
+                <div class="form-group">
+                    <label>Ребёнок</label>
+                    <select id="editChildId">
+                        <option value="">Выберите ребёнка</option>
+                        ${children.map(c => `<option value="${c.id}" ${c.id === transaction.childId ? 'selected' : ''}>${c.name}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Плательщик</label>
+                    <input type="text" id="editParentName" value="${transaction.parentName || ''}">
+                </div>
+                <div class="form-group">
+                    <label>Комментарий</label>
+                    <input type="text" id="editComment" value="${transaction.comment || ''}">
+                </div>
+                <div class="form-group">
+                    <label>Тип взноса</label>
+                    <select id="editFund">
+                        ${getFunds().map(f => `<option value="${f}" ${f === transaction.fund ? 'selected' : ''}>${f}</option>`).join('')}
+                    </select>
+                </div>
+            `;
+        } else {
+            html += `
+                <div class="form-group">
+                    <label>Категория</label>
+                    <select id="editCategory">
+                        <option value="Канцтовары" ${transaction.category === 'Канцтовары' ? 'selected' : ''}>Канцтовары</option>
+                        <option value="Подарки" ${transaction.category === 'Подарки' ? 'selected' : ''}>Подарки</option>
+                        <option value="Мероприятия" ${transaction.category === 'Мероприятия' ? 'selected' : ''}>Мероприятия</option>
+                        <option value="Хознужды" ${transaction.category === 'Хознужды' ? 'selected' : ''}>Хознужды</option>
+                        <option value="Прочее" ${transaction.category === 'Прочее' ? 'selected' : ''}>Прочее</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Описание</label>
+                    <input type="text" id="editDescription" value="${transaction.description || ''}">
+                </div>
+            `;
+        }
+        
+        content.innerHTML = html;
+        modal.style.display = 'flex';
+        
+        document.getElementById('editSaveBtn').dataset.id = id;
+        
+    } catch(e) {
+        console.error('❌ Ошибка openEditModal:', e);
+        alert('Ошибка: ' + e.message);
+    }
+}
+
 // === ИНИЦИАЛИЗАЦИЯ ===
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ DOM загружен, инициализация...');
     
     try {
-        const loginPage = document.getElementById('loginPage');
-        const mainPage = document.getElementById('mainPage');
-        const loginPassword = document.getElementById('loginPassword');
-        const loginBtn = document.getElementById('loginBtn');
-        const loginError = document.getElementById('loginError');
-        const logoutBtn = document.getElementById('logoutBtn');
-
-        const hasPassword = localStorage.getItem(PASSWORD_KEY) !== null;
-
-        if (isSessionActive() && hasPassword) {
-            loginPage.classList.add('hidden');
-            mainPage.classList.remove('hidden');
-            refreshUI();
-            setDefaultDates();
-            return;
+        if (!localStorage.getItem(DATA_KEY)) {
+            saveData(getDefaultData());
         }
-
-        if (!hasPassword) {
-            loginPassword.placeholder = 'Установите пароль (мин. 4)';
-            loginBtn.textContent = 'Установить';
-        } else {
-            loginPassword.placeholder = 'Введите пароль';
-            loginBtn.textContent = 'Войти';
+        
+        if (!localStorage.getItem(PASSWORD_KEY)) {
+            localStorage.setItem(PASSWORD_KEY, 'admin123');
+            console.log('🔑 Пароль по умолчанию: admin123');
         }
-
-        loginBtn.addEventListener('click', function() {
-            try {
-                const pwd = loginPassword.value.trim();
-                if (!pwd) {
-                    loginError.textContent = 'Введите пароль';
-                    loginError.classList.remove('hidden');
-                    return;
-                }
-
-                if (!hasPassword) {
-                    if (pwd.length < 4) {
-                        loginError.textContent = 'Минимум 4 символа';
-                        loginError.classList.remove('hidden');
-                        return;
-                    }
-                    localStorage.setItem(PASSWORD_KEY, pwd);
-                    if (!localStorage.getItem(DATA_KEY)) saveData(getDefaultData());
-                    loginError.classList.add('hidden');
-                    loginPage.classList.add('hidden');
-                    mainPage.classList.remove('hidden');
-                    startSession();
-                    refreshUI();
-                    setDefaultDates();
-                    return;
-                }
-
-                if (localStorage.getItem(PASSWORD_KEY) === pwd) {
-                    loginError.classList.add('hidden');
-                    loginPage.classList.add('hidden');
-                    mainPage.classList.remove('hidden');
-                    startSession();
-                    refreshUI();
-                    setDefaultDates();
-                } else {
-                    loginError.textContent = 'Неверный пароль';
-                    loginError.classList.remove('hidden');
-                }
-            } catch(err) {
-                console.error('❌ Ошибка при входе:', err);
-                alert('Ошибка: ' + err.message);
-            }
-        });
-
-        logoutBtn.addEventListener('click', function() {
-            try {
-                endSession();
-                mainPage.classList.add('hidden');
-                loginPage.classList.remove('hidden');
-                loginPassword.value = '';
-                loginError.classList.add('hidden');
-            } catch(err) {
-                console.error('❌ Ошибка при выходе:', err);
-            }
-        });
+        
+        refreshUI();
+        setDefaultDates();
 
         // === ВКЛАДКИ ===
         document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -1285,10 +1847,22 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
+        // === СВЯЗЬ С АВТОРОМ ===
+        const contactModal = document.getElementById('contactModal');
+        document.getElementById('contactBtn').addEventListener('click', function() {
+            contactModal.style.display = 'flex';
+        });
+        document.getElementById('contactModalClose').addEventListener('click', function() {
+            contactModal.style.display = 'none';
+        });
+        window.addEventListener('click', function(e) {
+            if (e.target === contactModal) contactModal.style.display = 'none';
+        });
+
         // === СМЕНА ПАРОЛЯ ===
         const modal = document.getElementById('changePasswordModal');
         document.getElementById('changePasswordBtn').addEventListener('click', function() {
-            modal.style.display = 'block';
+            modal.style.display = 'flex';
             document.getElementById('oldPassword').value = '';
             document.getElementById('newPassword').value = '';
             document.getElementById('newPasswordConfirm').value = '';
@@ -1313,6 +1887,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('Ошибка: ' + err.message);
             }
         });
+
+        // === ЭКСПОРТ ДЛЯ РОДИТЕЛЕЙ ===
+        document.getElementById('exportParentBtn').addEventListener('click', exportForParents);
+
+        // === ОЧИСТКА ДАННЫХ ===
+        document.getElementById('clearDataBtn').addEventListener('click', clearAllData);
 
         // === ДОБАВЛЕНИЕ ФОНДА ===
         document.getElementById('addFundBtn').addEventListener('click', function() {
@@ -1448,6 +2028,109 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
+        // === ПРЕДВАРИТЕЛЬНЫЙ ПРОСМОТР ФАЙЛОВ ДЛЯ РАСХОДОВ ===
+        const expenseFilesInput = document.getElementById('expenseFiles');
+        const expenseFilesPreview = document.getElementById('expenseFilesPreview');
+        let selectedFiles = [];
+
+        function updateFilePreview() {
+            expenseFilesPreview.innerHTML = '';
+            selectedFiles.forEach((f, index) => {
+                const previewDiv = document.createElement('div');
+                previewDiv.className = 'preview-item';
+                
+                if (f.type && f.type.startsWith('image/')) {
+                    previewDiv.innerHTML = `
+                        <img src="${f.data}" class="file-preview" alt="${f.name}">
+                        <button class="remove-file" data-index="${index}">✕</button>
+                    `;
+                } else {
+                    previewDiv.innerHTML = `
+                        <div style="width:80px;height:80px;background:#e9ecf0;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:12px;text-align:center;word-break:break-all;padding:4px;">
+                            📄 ${f.name}
+                        </div>
+                        <button class="remove-file" data-index="${index}">✕</button>
+                    `;
+                }
+                
+                expenseFilesPreview.appendChild(previewDiv);
+                
+                previewDiv.querySelector('.remove-file').addEventListener('click', function() {
+                    const idx = parseInt(this.dataset.index);
+                    selectedFiles.splice(idx, 1);
+                    updateFilePreview();
+                    expenseFilesInput.value = '';
+                });
+            });
+        }
+
+        expenseFilesInput.addEventListener('change', function() {
+            const files = Array.from(this.files);
+            let processed = 0;
+            
+            if (files.length === 0) {
+                updateFilePreview();
+                return;
+            }
+            
+            files.forEach((file) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    selectedFiles.push({
+                        name: file.name,
+                        type: file.type,
+                        data: e.target.result
+                    });
+                    processed++;
+                    if (processed === files.length) {
+                        updateFilePreview();
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        // === ДОБАВЛЕНИЕ РАСХОДА ===
+        document.getElementById('addExpenseBtn').addEventListener('click', function() {
+            try {
+                const amount = parseFloat(document.getElementById('expenseAmount').value);
+                if (isNaN(amount) || amount <= 0) { 
+                    alert('Введите сумму'); 
+                    return; 
+                }
+                const category = document.getElementById('expenseCategory').value;
+                const description = document.getElementById('expenseDescription').value.trim() || 'без описания';
+                const date = document.getElementById('expenseDate').value || new Date().toISOString().split('T')[0];
+                
+                const files = selectedFiles.map(f => ({
+                    name: f.name,
+                    type: f.type,
+                    data: f.data
+                }));
+                
+                addTransaction({
+                    type: 'expense',
+                    amount: amount,
+                    category: category,
+                    description: description,
+                    date: date,
+                    files: files
+                });
+                
+                document.getElementById('expenseAmount').value = '';
+                document.getElementById('expenseDescription').value = '';
+                document.getElementById('expenseFiles').value = '';
+                selectedFiles = [];
+                updateFilePreview();
+                
+                refreshUI();
+                alert('✅ Расход добавлен');
+            } catch(err) {
+                console.error('❌ Ошибка добавления расхода:', err);
+                alert('Ошибка: ' + err.message);
+            }
+        });
+
         // === ДОБАВЛЕНИЕ ПРИХОДА ===
         document.getElementById('addIncomeBtn').addEventListener('click', function() {
             try {
@@ -1477,7 +2160,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     childId: childId,
                     parentName: parentName,
                     comment: comment,
-                    fund: fund
+                    fund: fund,
+                    files: []
                 });
                 
                 document.getElementById('incomeAmount').value = '';
@@ -1491,25 +2175,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('✅ Приход добавлен');
             } catch(err) {
                 console.error('❌ Ошибка добавления прихода:', err);
-                alert('Ошибка: ' + err.message);
-            }
-        });
-
-        // === ДОБАВЛЕНИЕ РАСХОДА ===
-        document.getElementById('addExpenseBtn').addEventListener('click', function() {
-            try {
-                const amount = parseFloat(document.getElementById('expenseAmount').value);
-                if (isNaN(amount) || amount <= 0) { alert('Введите сумму'); return; }
-                const category = document.getElementById('expenseCategory').value;
-                const description = document.getElementById('expenseDescription').value.trim() || 'без описания';
-                const date = document.getElementById('expenseDate').value || new Date().toISOString().split('T')[0];
-                addTransaction({ type: 'expense', amount: amount, category: category, description: description, date: date });
-                refreshUI();
-                document.getElementById('expenseAmount').value = '';
-                document.getElementById('expenseDescription').value = '';
-                alert('✅ Расход добавлен');
-            } catch(err) {
-                console.error('❌ Ошибка добавления расхода:', err);
                 alert('Ошибка: ' + err.message);
             }
         });
@@ -1535,34 +2200,11 @@ document.addEventListener('DOMContentLoaded', function() {
             refreshUI();
         });
 
-        // === ОТЧЁТ (расширенный) ===
-        // Быстрые периоды
-        document.querySelectorAll('.period-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const period = this.dataset.period;
-                const dates = getPeriodDates(period);
-                
-                if (dates) {
-                    document.getElementById('reportFrom').value = dates.from;
-                    document.getElementById('reportTo').value = dates.to;
-                } else {
-                    document.getElementById('reportFrom').value = '';
-                    document.getElementById('reportTo').value = '';
-                }
-            });
-        });
-
-        document.getElementById('reportGenerate').addEventListener('click', function() {
+        // === ОТЧЁТ ===
+        function generateReport(from, to) {
             try {
-                const from = document.getElementById('reportFrom').value;
-                const to = document.getElementById('reportTo').value;
-                
-                if (!from && !to) { 
-                    alert('Выберите период (даты или используйте быстрый выбор)');
-                    return; 
-                }
-                
                 let list = getTransactions();
+                
                 if (from) list = list.filter(t => t.date >= from);
                 if (to) list = list.filter(t => t.date <= to);
                 
@@ -1579,24 +2221,37 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 const balance = income - expense;
                 
+                let periodLabel = '';
+                if (from && to) {
+                    periodLabel = `${from} — ${to}`;
+                } else if (from) {
+                    periodLabel = `с ${from}`;
+                } else if (to) {
+                    periodLabel = `по ${to}`;
+                } else {
+                    periodLabel = 'За всё время';
+                }
+                
                 let html = `
-                    <div style="background:#f1f4f9;padding:16px;border-radius:8px;margin-bottom:16px;">
-                        <div style="display:flex; flex-wrap:wrap; gap:16px;">
-                            <div><strong>📅 Период:</strong> ${from || 'все'} — ${to || 'все'}</div>
+                    <div style="background:#f1f4f9;padding:12px;border-radius:8px;margin-bottom:12px;">
+                        <div style="display:flex; flex-wrap:wrap; gap:12px; font-size:13px;">
+                            <div><strong>📅 Период:</strong> ${periodLabel}</div>
                             <div><strong>📈 Приходов:</strong> <span style="color:#27ae60;font-weight:700;">${income.toFixed(2)} ₽</span></div>
                             <div><strong>📉 Расходов:</strong> <span style="color:#e74c3c;font-weight:700;">${expense.toFixed(2)} ₽</span></div>
                             <div><strong>💰 Баланс:</strong> <span style="font-weight:700;color:${balance>=0?'#27ae60':'#e74c3c'};">${balance.toFixed(2)} ₽</span></div>
-                            <div><strong>📊 Всего операций:</strong> ${list.length}</div>
+                            <div><strong>📊 Всего:</strong> ${list.length}</div>
                         </div>
                     </div>
-                    <table>
-                        <thead><tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>Описание</th></tr></thead>
-                        <tbody>`;
+                    <div class="table-wrapper">
+                        <table>
+                            <thead><tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>Описание</th><th>Чек</th></tr></thead>
+                            <tbody>`;
                 
                 const sorted = list.slice().sort((a,b) => a.date.localeCompare(b.date));
                 sorted.forEach(t => {
                     const typeLabel = t.type === 'income' ? 'Приход' : 'Расход';
                     let desc = '';
+                    let fileHtml = '—';
                     if (t.type === 'income') {
                         const child = findChild(t.childId);
                         const childName = child ? child.name : 'неизвестный ученик';
@@ -1604,20 +2259,52 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (t.fund) desc += ` [${t.fund}]`;
                     } else {
                         desc = (t.description || '') + ' (' + (t.category || 'без категории') + ')';
+                        if (t.files && t.files.length > 0) {
+                            const idStr = t.id.toString();
+                            fileHtml = `<span style="cursor:pointer;color:#4f8cf7;text-decoration:underline;" onclick="showFilePreview('${idStr}')">📎 ${t.files.length}</span>`;
+                        }
                     }
                     html += `<tr>
                         <td>${t.date}</td>
                         <td><span class="badge ${t.type === 'income' ? 'income' : 'expense'}">${typeLabel}</span></td>
                         <td>${t.amount.toFixed(2)} ₽</td>
                         <td>${desc}</td>
+                        <td>${fileHtml}</td>
                     </tr>`;
                 });
-                html += '</tbody></table>';
+                html += '</tbody></table></div>';
                 div.innerHTML = html;
             } catch(err) {
                 console.error('❌ Ошибка генерации отчёта:', err);
                 alert('Ошибка: ' + err.message);
             }
+        }
+
+        document.querySelectorAll('.period-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const period = this.dataset.period;
+                const dates = getPeriodDates(period);
+                
+                if (dates) {
+                    document.getElementById('reportFrom').value = dates.from;
+                    document.getElementById('reportTo').value = dates.to;
+                } else {
+                    document.getElementById('reportFrom').value = '';
+                    document.getElementById('reportTo').value = '';
+                }
+                
+                generateReport(
+                    document.getElementById('reportFrom').value,
+                    document.getElementById('reportTo').value
+                );
+            });
+        });
+
+        document.getElementById('reportGenerate').addEventListener('click', function() {
+            generateReport(
+                document.getElementById('reportFrom').value,
+                document.getElementById('reportTo').value
+            );
         });
 
         document.getElementById('reportClear').addEventListener('click', function() {
@@ -1642,26 +2329,94 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('Ошибка: ' + err.message);
             }
         });
+
         document.getElementById('importBtn').addEventListener('click', function() {
             document.getElementById('importFile').click();
         });
+
         document.getElementById('importFile').addEventListener('change', function(e) {
             if (e.target.files.length > 0) {
                 try {
                     const reader = new FileReader();
                     reader.onload = function(ev) {
                         try {
-                            const data = JSON.parse(ev.target.result);
-                            if (data.children && data.fees && data.transactions && data.funds) {
-                                saveData(data);
-                                refreshUI();
-                                alert('Импорт выполнен');
+                            const rawData = JSON.parse(ev.target.result);
+                            let importedData = null;
+                            
+                            if (rawData.children && rawData.fees && rawData.transactions && rawData.funds) {
+                                importedData = rawData;
+                                console.log('✅ Импорт в новом формате');
+                            } else if (Array.isArray(rawData)) {
+                                console.log('🔄 Импорт старого формата (массив транзакций)');
+                                const currentData = loadData();
+                                importedData = {
+                                    children: currentData.children || [],
+                                    fees: currentData.fees || [],
+                                    funds: currentData.funds || ['Общий сбор', 'Театр', 'Подарки', 'Экскурсия', 'Канцтовары'],
+                                    transactions: rawData.map(t => {
+                                        const newT = {
+                                            id: t.id || Date.now().toString() + '_' + Math.random().toString(36).substr(2, 6),
+                                            date: t.date || new Date().toISOString().split('T')[0],
+                                            type: t.type || 'income',
+                                            amount: t.amount || 0,
+                                            files: t.files || []
+                                        };
+                                        
+                                        if (t.type === 'income') {
+                                            newT.childId = t.childId || null;
+                                            newT.parentName = t.parentName || t.from || 'не указан';
+                                            newT.comment = t.comment || '';
+                                            newT.fund = t.fund || 'Общий сбор';
+                                        }
+                                        if (t.type === 'expense') {
+                                            newT.description = t.description || '';
+                                            newT.category = t.category || 'Прочее';
+                                        }
+                                        
+                                        return newT;
+                                    })
+                                };
+                            } else if (rawData.transactions && Array.isArray(rawData.transactions)) {
+                                console.log('🔄 Импорт старого формата (объект с transactions)');
+                                const currentData = loadData();
+                                importedData = {
+                                    children: rawData.children || currentData.children || [],
+                                    fees: rawData.fees || currentData.fees || [],
+                                    funds: rawData.funds || currentData.funds || ['Общий сбор', 'Театр', 'Подарки', 'Экскурсия', 'Канцтовары'],
+                                    transactions: rawData.transactions.map(t => {
+                                        const newT = {
+                                            id: t.id || Date.now().toString() + '_' + Math.random().toString(36).substr(2, 6),
+                                            date: t.date || new Date().toISOString().split('T')[0],
+                                            type: t.type || 'income',
+                                            amount: t.amount || 0,
+                                            files: t.files || []
+                                        };
+                                        
+                                        if (t.type === 'income') {
+                                            newT.childId = t.childId || null;
+                                            newT.parentName = t.parentName || t.from || 'не указан';
+                                            newT.comment = t.comment || '';
+                                            newT.fund = t.fund || 'Общий сбор';
+                                        }
+                                        if (t.type === 'expense') {
+                                            newT.description = t.description || '';
+                                            newT.category = t.category || 'Прочее';
+                                        }
+                                        
+                                        return newT;
+                                    })
+                                };
                             } else {
-                                alert('Неверный формат');
+                                alert('❌ Неизвестный формат файла. Поддерживаются только JSON-файлы с данными казначея.');
+                                return;
                             }
+                            
+                            saveData(importedData);
+                            refreshUI();
+                            alert('✅ Импорт выполнен успешно!');
                         } catch(err) {
                             console.error('❌ Ошибка чтения файла:', err);
-                            alert('Ошибка чтения: ' + err.message);
+                            alert('Ошибка чтения файла: ' + err.message);
                         }
                     };
                     reader.readAsText(e.target.files[0]);
@@ -1670,6 +2425,55 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.error('❌ Ошибка импорта:', err);
                     alert('Ошибка: ' + err.message);
                 }
+            }
+        });
+
+        // === ОБРАБОТЧИКИ ДЛЯ МОДАЛЬНОГО ОКНА РЕДАКТИРОВАНИЯ ===
+        document.getElementById('editModalClose').addEventListener('click', function() {
+            document.getElementById('editModal').style.display = 'none';
+        });
+        
+        document.getElementById('editCancelBtn').addEventListener('click', function() {
+            document.getElementById('editModal').style.display = 'none';
+        });
+        
+        document.getElementById('editSaveBtn').addEventListener('click', function() {
+            try {
+                const id = this.dataset.id;
+                const transactions = getTransactions();
+                const transaction = transactions.find(t => t.id.toString() === id.toString());
+                if (!transaction) {
+                    alert('Транзакция не найдена');
+                    return;
+                }
+                
+                const updatedData = {
+                    amount: parseFloat(document.getElementById('editAmount').value) || 0,
+                    date: document.getElementById('editDate').value || new Date().toISOString().split('T')[0]
+                };
+                
+                if (transaction.type === 'income') {
+                    updatedData.childId = parseFloat(document.getElementById('editChildId').value) || null;
+                    updatedData.parentName = document.getElementById('editParentName').value.trim() || 'не указан';
+                    updatedData.comment = document.getElementById('editComment').value.trim();
+                    updatedData.fund = document.getElementById('editFund').value;
+                } else {
+                    updatedData.category = document.getElementById('editCategory').value;
+                    updatedData.description = document.getElementById('editDescription').value.trim() || 'без описания';
+                }
+                
+                editTransaction(id, updatedData);
+                document.getElementById('editModal').style.display = 'none';
+            } catch(e) {
+                console.error('❌ Ошибка сохранения:', e);
+                alert('Ошибка: ' + e.message);
+            }
+        });
+        
+        window.addEventListener('click', function(e) {
+            const editModal = document.getElementById('editModal');
+            if (e.target === editModal) {
+                editModal.style.display = 'none';
             }
         });
 
