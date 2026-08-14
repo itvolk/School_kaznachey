@@ -7,8 +7,7 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
-        h1 { margin-bottom: 20px; color: #1a2b4a; }
+        .container { max-width: 1200px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 24px; }
         .card { background: #f8f9fc; border-radius: 12px; padding: 16px; margin-bottom: 20px; }
         .balance { font-size: 32px; font-weight: 700; }
         .positive { color: #27ae60; }
@@ -25,6 +24,11 @@
         .btn-danger:hover { background: #c0392b; }
         .btn-outline { background: transparent; border: 1px solid #4f8cf7; color: #4f8cf7; }
         .btn-outline:hover { background: #4f8cf7; color: #fff; }
+        .btn-warning { background: #f39c12; color: #fff; }
+        .btn-warning:hover { background: #e67e22; }
+        .btn-sm { padding: 4px 12px; font-size: 12px; }
+        .btn-filter { background: #6c757d; color: #fff; }
+        .btn-filter:hover { background: #5a6268; }
         .hidden { display: none; }
         .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
         .tab-btn { padding: 8px 20px; border: none; background: #e9ecf0; border-radius: 8px; cursor: pointer; font-weight: 600; }
@@ -38,23 +42,100 @@
         .badge.income { background: #d4edda; color: #155724; }
         .badge.expense { background: #f8d7da; color: #721c24; }
         .badge.debt { background: #fff3cd; color: #856404; }
+        .badge.fund { background: #d1ecf1; color: #0c5460; }
+        .badge.period { background: #e8daef; color: #6c3483; }
+        .delete-btn { background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 16px; padding: 0 4px; }
+        .delete-btn:hover { color: #c0392b; }
+        .session-info { font-size: 13px; color: #888; margin-right: 12px; }
+        .parents-list span { 
+            background: #e9ecf0; 
+            padding: 2px 10px; 
+            border-radius: 12px; 
+            margin-right: 4px; 
+            display: inline-block; 
+            margin-bottom: 4px;
+            font-size: 13px;
+        }
+        .parents-list .remove-parent {
+            cursor: pointer;
+            color: #e74c3c;
+            margin-left: 4px;
+            font-weight: bold;
+        }
+        .parents-list .remove-parent:hover { color: #c0392b; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+        .modal-content { background: #fff; margin: 10% auto; padding: 30px; border-radius: 16px; max-width: 420px; }
+        .modal-close { float: right; font-size: 24px; cursor: pointer; color: #888; }
+        .modal-close:hover { color: #000; }
         .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 12px; }
         .alert-danger { background: #f8d7da; color: #721c24; }
-        .filter-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 16px; }
-        .filter-row .form-group { flex: 0 0 160px; margin-bottom: 0; }
-        .delete-btn { background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 16px; }
-        .delete-btn:hover { color: #c0392b; }
+        .alert-success { background: #d4edda; color: #155724; }
+        .add-parent-row { display: flex; gap: 4px; align-items: center; margin-top: 4px; }
+        .add-parent-row input { flex: 1; padding: 4px 8px; font-size: 12px; border: 1px solid #ccc; border-radius: 4px; }
+        
+        .search-container { position: relative; }
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid #d0d7de;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .search-results .result-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+        }
+        .search-results .result-item:hover { background: #f0f4ff; }
+        .search-results .result-item .highlight { font-weight: 600; color: #4f8cf7; }
+        .search-results .result-item .sub-text { font-size: 12px; color: #888; margin-left: 8px; }
+
+        .fund-tag {
+            display: inline-block;
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .fund-tag .remove-fund {
+            cursor: pointer;
+            color: #e74c3c;
+            margin-left: 4px;
+            font-weight: bold;
+        }
+        .fund-tag .remove-fund:hover { color: #c0392b; }
+        .funds-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+
+        .filter-section {
+            background: #f8f9fc;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+        .filter-section .flex-row { gap: 8px; }
+        .filter-section .form-group { margin-bottom: 0; flex: 1 1 150px; }
+        .filter-section .form-group label { font-size: 12px; }
+
         @media (max-width: 768px) {
             .container { padding: 16px; }
             .flex-row { flex-direction: column; align-items: stretch; }
-            .filter-row .form-group { flex: 1 1 auto; }
+            .modal-content { margin: 20% 16px; }
         }
     </style>
 </head>
 <body>
 
 <div class="container" id="app">
-    <!-- СТРАНИЦА ВХОДА -->
     <div id="loginPage">
         <h1>🔐 Казначей класса</h1>
         <div class="card">
@@ -67,11 +148,12 @@
         </div>
     </div>
 
-    <!-- ОСНОВНОЙ ИНТЕРФЕЙС -->
     <div id="mainPage" class="hidden">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom:16px;">
             <h1>📊 Казначей класса</h1>
-            <div>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <span class="session-info">🔒 Сессия активна</span>
+                <button class="btn btn-outline" id="changePasswordBtn">🔑 Сменить пароль</button>
                 <button class="btn btn-outline" id="exportBtn">📥 Экспорт</button>
                 <button class="btn btn-outline" id="importBtn">📤 Импорт</button>
                 <input type="file" id="importFile" accept=".json" style="display:none;">
@@ -79,7 +161,6 @@
             </div>
         </div>
 
-        <!-- Баланс -->
         <div class="card" style="background:#eef3fc;">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
                 <span style="font-size:18px;">Текущий баланс</span>
@@ -87,149 +168,219 @@
             </div>
         </div>
 
-        <!-- Вкладки -->
         <div class="tabs">
             <button class="tab-btn active" data-tab="tabOperations">📋 Операции</button>
             <button class="tab-btn" data-tab="tabAddIncome">➕ Приход</button>
             <button class="tab-btn" data-tab="tabAddExpense">➖ Расход</button>
-            <button class="tab-btn" data-tab="tabParents">👨‍👩‍👧‍👦 Родители</button>
+            <button class="tab-btn" data-tab="tabClass">👨‍👩‍👧‍👦 Класс</button>
             <button class="tab-btn" data-tab="tabFees">📅 Взносы</button>
             <button class="tab-btn" data-tab="tabReport">📈 Отчёт</button>
         </div>
 
-        <!-- Вкладка: Операции -->
         <div id="tabOperations" class="tab-content active">
-            <div class="filter-row">
-                <div class="form-group">
-                    <label>Дата с</label>
-                    <input type="date" id="filterFrom">
-                </div>
-                <div class="form-group">
-                    <label>Дата по</label>
-                    <input type="date" id="filterTo">
-                </div>
+            <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:12px;">
+                <div class="form-group" style="flex:0 0 150px;"><label>С</label><input type="date" id="filterFrom"></div>
+                <div class="form-group" style="flex:0 0 150px;"><label>По</label><input type="date" id="filterTo"></div>
                 <button class="btn" id="filterApply">Применить</button>
                 <button class="btn btn-outline" id="filterClear">Сбросить</button>
             </div>
-            <div style="overflow-x:auto;">
-                <table>
-                    <thead><tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>Описание</th></tr></thead>
-                    <tbody id="tableBody">
-                        <tr><td colspan="4" style="text-align:center;color:#999;">Нет операций</td></tr>
-                    </tbody>
-                </table>
-            </div>
+            <table><thead><tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>Описание</th></tr></thead>
+                <tbody id="tableBody"><tr><td colspan="4" style="text-align:center;color:#999;">Нет операций</td></tr></tbody>
+            </table>
         </div>
 
-        <!-- Вкладка: Добавить приход -->
         <div id="tabAddIncome" class="tab-content">
             <div class="card">
-                <h3>Добавить приход</h3>
+                <h3>➕ Добавить приход</h3>
                 <div class="flex-row">
                     <div class="form-group">
                         <label>Сумма (₽)</label>
                         <input type="number" id="incomeAmount" step="0.01" placeholder="0.00">
                     </div>
-                    <div class="form-group">
-                        <label>Родитель</label>
-                        <select id="incomeParent">
-                            <option value="">Выберите из списка</option>
-                        </select>
-                        <input type="text" id="incomeParentManual" placeholder="или введите вручную" style="margin-top:4px;">
+                    <div class="form-group" style="flex:2;">
+                        <label>🔍 Быстрый поиск (ученик или родитель)</label>
+                        <div class="search-container">
+                            <input type="text" id="searchInput" placeholder="Начните вводить имя..." autocomplete="off">
+                            <div class="search-results" id="searchResults"></div>
+                        </div>
                     </div>
                 </div>
                 <div class="flex-row">
+                    <div class="form-group">
+                        <label>Ребёнок</label>
+                        <select id="incomeChild">
+                            <option value="">Выберите из списка</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Плательщик</label>
+                        <select id="incomeParent">
+                            <option value="">Выберите из списка</option>
+                        </select>
+                    </div>
                     <div class="form-group">
                         <label>Дата</label>
                         <input type="date" id="incomeDate">
                     </div>
-                    <div class="form-group">
+                </div>
+                <div class="flex-row">
+                    <div class="form-group" style="flex:2;">
                         <label>Комментарий</label>
                         <input type="text" id="incomeComment" placeholder="например, взнос за май">
+                    </div>
+                    <div class="form-group">
+                        <label>Тип взноса</label>
+                        <select id="incomeFundType">
+                            <option value="Общий сбор">Общий сбор</option>
+                            <option value="Театр">Театр</option>
+                            <option value="Подарки">Подарки</option>
+                            <option value="Экскурсия">Экскурсия</option>
+                            <option value="Канцтовары">Канцтовары</option>
+                            <option value="Другое">Другое</option>
+                        </select>
                     </div>
                 </div>
                 <button class="btn btn-success" id="addIncomeBtn">➕ Добавить приход</button>
             </div>
-        </div>
 
-        <!-- Вкладка: Добавить расход -->
-        <div id="tabAddExpense" class="tab-content">
             <div class="card">
-                <h3>Добавить расход</h3>
-                <div class="flex-row">
-                    <div class="form-group">
-                        <label>Сумма (₽)</label>
-                        <input type="number" id="expenseAmount" step="0.01" placeholder="0.00">
-                    </div>
-                    <div class="form-group">
-                        <label>Категория</label>
-                        <select id="expenseCategory">
-                            <option value="Канцтовары">Канцтовары</option>
-                            <option value="Подарки">Подарки</option>
-                            <option value="Мероприятия">Мероприятия</option>
-                            <option value="Хознужды">Хознужды</option>
-                            <option value="Прочее">Прочее</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="flex-row">
-                    <div class="form-group">
-                        <label>Дата</label>
-                        <input type="date" id="expenseDate">
-                    </div>
-                    <div class="form-group">
-                        <label>Описание</label>
-                        <input type="text" id="expenseDescription" placeholder="что купили">
-                    </div>
-                </div>
-                <button class="btn btn-danger" id="addExpenseBtn">➖ Добавить расход</button>
-            </div>
-        </div>
-
-        <!-- Вкладка: Родители -->
-        <div id="tabParents" class="tab-content">
-            <div class="card">
-                <h3>Список родителей</h3>
-                <div class="flex-row">
-                    <div class="form-group">
-                        <label>ФИО родителя</label>
-                        <input type="text" id="parentName" placeholder="Иванова Мария Алексеевна">
-                    </div>
-                    <button class="btn btn-success" id="addParentBtn">➕ Добавить</button>
-                </div>
-                <div style="margin-top:16px;">
+                <h4>📋 Последние приходы</h4>
+                <div style="overflow-x:auto; max-height:300px; overflow-y:auto;">
                     <table>
-                        <thead><tr><th>#</th><th>ФИО</th><th>Действие</th></tr></thead>
-                        <tbody id="parentsTableBody">
-                            <tr><td colspan="3" style="text-align:center;color:#999;">Родители не добавлены</td></tr>
+                        <thead><tr><th>Дата</th><th>Ученик</th><th>Плательщик</th><th>Сумма</th><th>Тип</th><th>Комментарий</th></tr></thead>
+                        <tbody id="recentIncomesTable">
+                            <tr><td colspan="6" style="text-align:center;color:#999;">Нет приходов</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- Вкладка: Взносы -->
+        <div id="tabAddExpense" class="tab-content">
+            <div class="card">
+                <h3>Добавить расход</h3>
+                <div class="flex-row">
+                    <div class="form-group"><label>Сумма (₽)</label><input type="number" id="expenseAmount" step="0.01"></div>
+                    <div class="form-group"><label>Категория</label>
+                        <select id="expenseCategory">
+                            <option>Канцтовары</option><option>Подарки</option>
+                            <option>Мероприятия</option><option>Прочее</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex-row">
+                    <div class="form-group"><label>Дата</label><input type="date" id="expenseDate"></div>
+                    <div class="form-group" style="flex:2;"><label>Описание</label><input type="text" id="expenseDescription"></div>
+                </div>
+                <button class="btn btn-danger" id="addExpenseBtn">➖ Добавить расход</button>
+            </div>
+        </div>
+
+        <div id="tabClass" class="tab-content">
+            <div class="card">
+                <h3>👨‍👩‍👧‍👦 Ученики и их родственники</h3>
+                <div class="flex-row">
+                    <div class="form-group"><label>ФИО ученика</label><input type="text" id="childName"></div>
+                    <div class="form-group"><label>ФИО родственника</label><input type="text" id="parentName" placeholder="родитель, бабушка и т.д."></div>
+                    <button class="btn btn-success" id="addChildBtn">➕ Добавить ученика</button>
+                </div>
+                <div style="margin-top:16px; overflow-x:auto;">
+                    <table>
+                        <thead><tr><th>#</th><th>Ученик</th><th>Родственники</th><th>Действие</th></tr></thead>
+                        <tbody id="classTableBody"><tr><td colspan="4" style="text-align:center;color:#999;">Нет учеников</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <div id="tabFees" class="tab-content">
             <div class="card">
-                <h3>Ежемесячные взносы</h3>
-                <div class="flex-row">
+                <h3>📅 Управление взносами</h3>
+                
+                <div class="flex-row" style="margin-bottom:16px;">
+                    <div class="form-group" style="flex:2;">
+                        <label>Название нового фонда/взноса</label>
+                        <input type="text" id="newFundName" placeholder="например: Сбор на театр">
+                    </div>
+                    <button class="btn btn-warning" id="addFundBtn">➕ Добавить фонд</button>
+                </div>
+
+                <div style="margin-bottom:16px;">
+                    <label>Существующие фонды:</label>
+                    <div class="funds-list" id="fundsList">
+                        <span style="color:#999;">Нет фондов</span>
+                    </div>
+                </div>
+
+                <div class="flex-row" style="border-top:1px solid #e9ecf0; padding-top:16px;">
                     <div class="form-group">
-                        <label>Месяц (ГГГГ-ММ)</label>
+                        <label>Выберите фонд</label>
+                        <select id="feeFundSelect">
+                            <option value="">Выберите фонд</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Периодичность</label>
+                        <select id="feePeriod">
+                            <option value="monthly">Ежемесячно</option>
+                            <option value="quarterly">Ежеквартально</option>
+                            <option value="halfyear">За полугодие</option>
+                            <option value="yearly">Ежегодно</option>
+                            <option value="once">Разово</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Период (ГГГГ-ММ)</label>
                         <input type="month" id="feeMonth">
                     </div>
                     <div class="form-group">
                         <label>Сумма взноса (₽)</label>
                         <input type="number" id="feeAmount" step="0.01" placeholder="0.00">
                     </div>
-                    <button class="btn" id="setFeeBtn">Установить взнос</button>
+                    <button class="btn btn-success" id="setFeeBtn">✅ Установить взнос</button>
                 </div>
-                <div style="margin-top:16px;">
-                    <h4>Задолженности за текущий месяц</h4>
-                    <div id="debtTableContainer">
+
+                <div style="margin-top:20px;">
+                    <h4>Задолженности</h4>
+                    
+                    <!-- Фильтры -->
+                    <div class="filter-section">
+                        <div class="flex-row">
+                            <div class="form-group">
+                                <label>Поиск по ученику</label>
+                                <input type="text" id="debtFilterName" placeholder="Введите ФИО...">
+                            </div>
+                            <div class="form-group">
+                                <label>Тип сбора</label>
+                                <select id="debtFilterFund">
+                                    <option value="">Все фонды</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Период</label>
+                                <select id="debtFilterPeriod">
+                                    <option value="">Все периоды</option>
+                                    <option value="monthly">Ежемесячно</option>
+                                    <option value="quarterly">Ежеквартально</option>
+                                    <option value="halfyear">За полугодие</option>
+                                    <option value="yearly">Ежегодно</option>
+                                    <option value="once">Разово</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Месяц</label>
+                                <input type="month" id="debtFilterMonth">
+                            </div>
+                            <button class="btn btn-filter" id="debtFilterApply">🔍 Применить фильтр</button>
+                            <button class="btn btn-outline" id="debtFilterClear">Сбросить</button>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:12px; overflow-x:auto;">
                         <table>
-                            <thead><tr><th>Родитель</th><th>Обязательный взнос</th><th>Внесено</th><th>Задолженность</th></tr></thead>
+                            <thead><tr><th>Ученик</th><th>Фонд</th><th>Период</th><th>Обязательно</th><th>Внесено</th><th>Задолженность</th></tr></thead>
                             <tbody id="debtTableBody">
-                                <tr><td colspan="4" style="text-align:center;color:#999;">Установите взнос на месяц</td></tr>
+                                <tr><td colspan="6" style="text-align:center;color:#999;">Нет данных</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -237,19 +388,12 @@
             </div>
         </div>
 
-        <!-- Вкладка: Отчёт -->
         <div id="tabReport" class="tab-content">
             <div class="card">
                 <h3>Отчёт за период</h3>
                 <div class="flex-row">
-                    <div class="form-group">
-                        <label>С</label>
-                        <input type="date" id="reportFrom">
-                    </div>
-                    <div class="form-group">
-                        <label>По</label>
-                        <input type="date" id="reportTo">
-                    </div>
+                    <div class="form-group"><label>С</label><input type="date" id="reportFrom"></div>
+                    <div class="form-group"><label>По</label><input type="date" id="reportTo"></div>
                     <button class="btn" id="reportGenerate">Сформировать</button>
                 </div>
                 <div id="reportResult" style="margin-top:16px;"></div>
@@ -258,107 +402,267 @@
     </div>
 </div>
 
+<div id="changePasswordModal" class="modal">
+    <div class="modal-content">
+        <span class="modal-close" id="modalClose">&times;</span>
+        <h2>🔑 Смена пароля</h2>
+        <div id="passwordChangeMessage" class="hidden"></div>
+        <div class="form-group"><label>Текущий пароль</label><input type="password" id="oldPassword"></div>
+        <div class="form-group"><label>Новый пароль</label><input type="password" id="newPassword"></div>
+        <div class="form-group"><label>Повторите</label><input type="password" id="newPasswordConfirm"></div>
+        <button class="btn" id="changePasswordConfirmBtn">Сменить</button>
+    </div>
+</div>
+
 <script>
-(function() {
-    // --- Константы ---
-    const PASSWORD_KEY = 'class_treasurer_password';
-    const DATA_KEY = 'class_treasurer_data';
+window.onerror = function(message, source, lineno, colno, error) {
+    console.error('❌ ГЛОБАЛЬНАЯ ОШИБКА:', message);
+    alert('⚠️ Ошибка: ' + message + '\n\nСмотрите консоль (F12) для деталей.');
+    return true;
+};
 
-    // --- Структура данных ---
-    function getDefaultData() {
-        return {
-            parents: [],          // [{id, name}]
-            fees: [],             // [{month: "2026-05", amount: 1000}]
-            transactions: []      // [{id, type, amount, date, from, comment, description, category, parentId}]
-        };
+console.log('✅ Скрипт запущен');
+
+// === ДАННЫЕ ===
+const PASSWORD_KEY = 'class_treasurer_password';
+const DATA_KEY = 'class_treasurer_data';
+const SESSION_KEY = 'class_treasurer_session';
+
+function getDefaultData() {
+    return { 
+        children: [], 
+        fees: [],          // [{fund, period, month, amount}]
+        funds: ['Общий сбор', 'Театр', 'Подарки', 'Экскурсия', 'Канцтовары'],
+        transactions: []   // [{type, amount, date, childId, parentName, comment, fund}]
+    };
+}
+
+function loadData() {
+    try {
+        const raw = localStorage.getItem(DATA_KEY);
+        if (raw) {
+            const data = JSON.parse(raw);
+            if (!data.children) data.children = [];
+            if (!data.fees) data.fees = [];
+            if (!data.funds) data.funds = ['Общий сбор', 'Театр', 'Подарки', 'Экскурсия', 'Канцтовары'];
+            if (!data.transactions) data.transactions = [];
+            return data;
+        }
+    } catch(e) {
+        console.error('❌ Ошибка загрузки данных:', e);
     }
+    return getDefaultData();
+}
 
-    // --- Работа с данными ---
-    function loadData() {
-        try {
-            const raw = localStorage.getItem(DATA_KEY);
-            if (raw) {
-                const data = JSON.parse(raw);
-                // Миграция: если нет parents или fees, добавить
-                if (!data.parents) data.parents = [];
-                if (!data.fees) data.fees = [];
-                if (!data.transactions) data.transactions = [];
-                return data;
-            }
-        } catch(e) {}
-        return getDefaultData();
-    }
-
-    function saveData(data) {
+function saveData(data) {
+    try {
         localStorage.setItem(DATA_KEY, JSON.stringify(data));
+    } catch(e) {
+        console.error('❌ Ошибка сохранения данных:', e);
+        alert('Ошибка сохранения: ' + e.message);
     }
+}
 
-    function getParents() { return loadData().parents; }
-    function getFees() { return loadData().fees; }
-    function getTransactions() { return loadData().transactions; }
+function getChildren() { return loadData().children; }
+function getFees() { return loadData().fees; }
+function getFunds() { return loadData().funds; }
+function getTransactions() { return loadData().transactions; }
 
-    function addParent(name) {
+function findChild(id) {
+    return getChildren().find(c => c.id === id);
+}
+
+function addChild(childName, parentName) {
+    try {
         const data = loadData();
-        const newParent = { id: Date.now() + Math.random(), name: name.trim() };
-        data.parents.push(newParent);
+        let child = data.children.find(c => c.name === childName);
+        if (!child) {
+            child = { id: Date.now() + Math.random(), name: childName, parents: [] };
+            data.children.push(child);
+        }
+        if (parentName && parentName.trim()) {
+            const trimmed = parentName.trim();
+            if (!child.parents.find(p => p.name === trimmed)) {
+                child.parents.push({ id: Date.now() + Math.random(), name: trimmed });
+            }
+        }
         saveData(data);
-        return newParent;
+        return child;
+    } catch(e) {
+        console.error('❌ Ошибка addChild:', e);
+        throw e;
     }
+}
 
-    function deleteParent(id) {
+function deleteChild(id) {
+    try {
         const data = loadData();
-        data.parents = data.parents.filter(p => p.id !== id);
+        data.children = data.children.filter(c => c.id !== id);
         saveData(data);
+    } catch(e) {
+        console.error('❌ Ошибка deleteChild:', e);
+        throw e;
     }
+}
 
-    function setFee(month, amount) {
+function addParentToChild(childId, parentName) {
+    try {
         const data = loadData();
-        // Удаляем старый взнос за этот месяц, если есть
-        data.fees = data.fees.filter(f => f.month !== month);
-        data.fees.push({ month, amount });
+        const child = data.children.find(c => c.id === childId);
+        if (!child) {
+            alert('Ученик не найден');
+            return false;
+        }
+        if (child.parents.find(p => p.name === parentName)) {
+            alert('Такой родственник уже добавлен');
+            return false;
+        }
+        child.parents.push({ id: Date.now() + Math.random(), name: parentName });
         saveData(data);
+        return true;
+    } catch(e) {
+        console.error('❌ Ошибка addParentToChild:', e);
+        alert('Ошибка: ' + e.message);
+        return false;
     }
+}
 
-    function getFeeForMonth(month) {
-        const fees = getFees();
-        const fee = fees.find(f => f.month === month);
-        return fee ? fee.amount : 0;
+function removeParentFromChild(childId, parentId) {
+    try {
+        const data = loadData();
+        const child = data.children.find(c => c.id === childId);
+        if (!child) return false;
+        child.parents = child.parents.filter(p => p.id !== parentId);
+        saveData(data);
+        return true;
+    } catch(e) {
+        console.error('❌ Ошибка removeParentFromChild:', e);
+        alert('Ошибка: ' + e.message);
+        return false;
     }
+}
 
-    function addTransaction(tr) {
+function addTransaction(tr) {
+    try {
         const data = loadData();
         tr.id = Date.now() + Math.random();
         data.transactions.push(tr);
         saveData(data);
-        return tr;
+    } catch(e) {
+        console.error('❌ Ошибка addTransaction:', e);
+        alert('Ошибка: ' + e.message);
     }
+}
 
-    // --- Вычисление задолженностей ---
-    function calculateDebts(month) {
-        const parents = getParents();
+function addFund(fundName) {
+    try {
+        const data = loadData();
+        if (!data.funds) data.funds = [];
+        if (data.funds.find(f => f === fundName)) {
+            alert('Такой фонд уже существует');
+            return false;
+        }
+        data.funds.push(fundName);
+        saveData(data);
+        return true;
+    } catch(e) {
+        console.error('❌ Ошибка addFund:', e);
+        alert('Ошибка: ' + e.message);
+        return false;
+    }
+}
+
+function removeFund(fundName) {
+    try {
+        const data = loadData();
+        data.funds = data.funds.filter(f => f !== fundName);
+        data.fees = data.fees.filter(f => f.fund !== fundName);
+        saveData(data);
+        return true;
+    } catch(e) {
+        console.error('❌ Ошибка removeFund:', e);
+        alert('Ошибка: ' + e.message);
+        return false;
+    }
+}
+
+function setFee(fund, period, month, amount) {
+    try {
+        const data = loadData();
+        data.fees = data.fees.filter(f => !(f.fund === fund && f.month === month));
+        data.fees.push({ fund: fund, period: period, month: month, amount: amount });
+        saveData(data);
+        console.log('✅ Взнос установлен:', fund, period, month, amount);
+    } catch(e) {
+        console.error('❌ Ошибка setFee:', e);
+        alert('Ошибка: ' + e.message);
+    }
+}
+
+function getFeeForMonth(fund, month) {
+    try {
+        const fees = getFees();
+        const fee = fees.find(f => f.fund === fund && f.month === month);
+        return fee ? { amount: fee.amount, period: fee.period } : null;
+    } catch(e) {
+        console.error('❌ Ошибка getFeeForMonth:', e);
+        return null;
+    }
+}
+
+function calculateDebts(month, filterName, filterFund, filterPeriod) {
+    try {
+        const children = getChildren();
         const transactions = getTransactions();
-        const feeAmount = getFeeForMonth(month);
-        if (!feeAmount) return [];
-
-        const debts = parents.map(parent => {
-            // Сумма приходов от этого родителя за указанный месяц
-            const paid = transactions
-                .filter(t => t.type === 'income' && t.parentId === parent.id && t.date && t.date.startsWith(month))
-                .reduce((sum, t) => sum + t.amount, 0);
-            return {
-                parentId: parent.id,
-                name: parent.name,
-                fee: feeAmount,
-                paid: paid,
-                debt: feeAmount - paid
-            };
+        const funds = getFunds();
+        const results = [];
+        
+        if (children.length === 0) return results;
+        
+        funds.forEach(fund => {
+            const feeData = getFeeForMonth(fund, month);
+            if (!feeData) return;
+            
+            // Применяем фильтр по фонду
+            if (filterFund && filterFund !== '' && fund !== filterFund) return;
+            
+            // Применяем фильтр по периодичности
+            if (filterPeriod && filterPeriod !== '' && feeData.period !== filterPeriod) return;
+            
+            children.forEach(child => {
+                // Применяем фильтр по имени
+                if (filterName && filterName.trim() !== '') {
+                    if (!child.name.toLowerCase().includes(filterName.toLowerCase())) return;
+                }
+                
+                const paid = transactions
+                    .filter(t => t.type === 'income' && t.childId === child.id && t.date && t.date.startsWith(month) && t.fund === fund)
+                    .reduce((sum, t) => sum + t.amount, 0);
+                    
+                results.push({ 
+                    childName: child.name, 
+                    fund: fund, 
+                    period: feeData.period,
+                    fee: feeData.amount, 
+                    paid: paid, 
+                    debt: feeData.amount - paid 
+                });
+            });
         });
-        return debts;
+        
+        return results;
+    } catch(e) {
+        console.error('❌ Ошибка calculateDebts:', e);
+        return [];
     }
+}
 
-    // --- Рендер таблицы операций ---
-    function renderTransactions(list) {
+// === UI ===
+
+function renderTransactions(list) {
+    try {
         const tbody = document.getElementById('tableBody');
+        if (!tbody) return;
         if (!list || list.length === 0) {
             tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#999;">Нет операций</td></tr>';
             return;
@@ -370,191 +674,426 @@
             const badge = t.type === 'income' ? 'income' : 'expense';
             let desc = '';
             if (t.type === 'income') {
-                const parentName = t.parentId ? (getParents().find(p => p.id === t.parentId)?.name || '') : '';
-                const from = t.from || parentName || 'не указан';
-                desc = 'От: ' + from + (t.comment ? ' ('+t.comment+')' : '');
+                const child = findChild(t.childId);
+                const childName = child ? child.name : 'неизвестный ученик';
+                desc = `${childName} — от: ${t.parentName || 'не указан'}` + (t.comment ? ' ('+t.comment+')' : '');
+                if (t.fund) desc += ` [${t.fund}]`;
             } else {
                 desc = (t.description || '') + ' (' + (t.category || 'без категории') + ')';
             }
+            html += `<tr><td>${t.date}</td><td><span class="badge ${badge}">${typeLabel}</span></td><td>${t.amount.toFixed(2)} ₽</td><td>${desc}</td></tr>`;
+        });
+        tbody.innerHTML = html;
+    } catch(e) {
+        console.error('❌ Ошибка renderTransactions:', e);
+    }
+}
+
+function renderRecentIncomes() {
+    try {
+        const tbody = document.getElementById('recentIncomesTable');
+        if (!tbody) return;
+        
+        const transactions = getTransactions();
+        const incomes = transactions.filter(t => t.type === 'income');
+        
+        if (incomes.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;">Нет приходов</td></tr>';
+            return;
+        }
+        
+        const sorted = [...incomes].sort((a,b) => a.date < b.date ? 1 : -1);
+        const recent = sorted.slice(0, 20);
+        
+        let html = '';
+        recent.forEach(t => {
+            const child = findChild(t.childId);
+            const childName = child ? child.name : 'неизвестный';
             html += `<tr>
                 <td>${t.date}</td>
-                <td><span class="badge ${badge}">${typeLabel}</span></td>
+                <td><strong>${childName}</strong></td>
+                <td>${t.parentName || 'не указан'}</td>
                 <td>${t.amount.toFixed(2)} ₽</td>
-                <td>${desc}</td>
+                <td><span class="fund-tag">${t.fund || 'Общий сбор'}</span></td>
+                <td>${t.comment || ''}</td>
             </tr>`;
         });
         tbody.innerHTML = html;
+    } catch(e) {
+        console.error('❌ Ошибка renderRecentIncomes:', e);
     }
+}
 
-    // --- Обновление баланса ---
-    function updateBalance(list) {
+function updateBalance(list) {
+    try {
         let balance = 0;
         list.forEach(t => {
             if (t.type === 'income') balance += t.amount;
             else balance -= t.amount;
         });
         const el = document.getElementById('balanceDisplay');
+        if (!el) return;
         el.textContent = balance.toFixed(2) + ' ₽';
         el.className = 'balance ' + (balance >= 0 ? 'positive' : 'negative');
+    } catch(e) {
+        console.error('❌ Ошибка updateBalance:', e);
     }
+}
 
-    // --- Обновление списка родителей в select и таблице ---
-    function refreshParentsUI() {
-        const parents = getParents();
-        // Обновить select
-        const select = document.getElementById('incomeParent');
+// === ОСНОВНАЯ ФУНКЦИЯ ОБНОВЛЕНИЯ КЛАССА ===
+function refreshClassUI() {
+    console.log('🔄 refreshClassUI() начат');
+    try {
+        const children = getChildren();
+        
+        const select = document.getElementById('incomeChild');
+        if (!select) return;
         const currentValue = select.value;
-        select.innerHTML = '<option value="">Выберите из списка</option>';
-        parents.forEach(p => {
-            const option = document.createElement('option');
-            option.value = p.id;
-            option.textContent = p.name;
-            select.appendChild(option);
+        select.innerHTML = '<option value="">Выберите ребёнка</option>';
+        children.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.id;
+            opt.textContent = c.name;
+            select.appendChild(opt);
         });
-        select.value = currentValue; // восстановить, если возможно
+        select.value = currentValue;
 
-        // Таблица родителей
-        const tbody = document.getElementById('parentsTableBody');
-        if (parents.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#999;">Родители не добавлены</td></tr>';
+        const tbody = document.getElementById('classTableBody');
+        if (!tbody) return;
+        
+        if (children.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#999;">Нет учеников</td></tr>';
             return;
         }
+        
         let html = '';
-        parents.forEach((p, index) => {
-            html += `<tr>
-                <td>${index+1}</td>
-                <td>${p.name}</td>
-                <td><button class="delete-btn" data-id="${p.id}">✕</button></td>
+        children.forEach((c, i) => {
+            let parentsHtml = '';
+            if (c.parents.length === 0) {
+                parentsHtml = '<span style="color:#999;">нет</span>';
+            } else {
+                parentsHtml = c.parents.map(p => 
+                    `<span>${p.name} <span class="remove-parent" data-childid="${c.id}" data-parentid="${p.id}" title="Удалить">✕</span></span>`
+                ).join(' ');
+            }
+            
+            html += `<tr data-childid="${c.id}">
+                <td>${i+1}</td>
+                <td><strong>${c.name}</strong></td>
+                <td>
+                    <div class="parents-list">${parentsHtml}</div>
+                    <div class="add-parent-row">
+                        <input type="text" class="add-parent-input" placeholder="добавить родственника" style="flex:1; padding:4px 8px; font-size:12px; border:1px solid #ccc; border-radius:4px;">
+                        <button class="btn btn-success btn-sm add-parent-btn" data-childid="${c.id}">+</button>
+                    </div>
+                </td>
+                <td><button class="delete-btn" data-id="${c.id}" title="Удалить ученика">✕</button></td>
             </tr>`;
         });
         tbody.innerHTML = html;
-        // Обработчики удаления
-        tbody.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                if (confirm('Удалить родителя?')) {
-                    deleteParent(parseFloat(this.dataset.id));
-                    refreshParentsUI();
-                    refreshFeesUI(); // обновить задолженности
+
+        document.querySelectorAll('.add-parent-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                try {
+                    const childId = parseFloat(this.dataset.childid);
+                    const tr = this.closest('tr');
+                    const input = tr.querySelector('.add-parent-input');
+                    const parentName = input.value.trim();
+                    
+                    if (!parentName) {
+                        alert('Введите ФИО родственника');
+                        return;
+                    }
+                    
+                    if (addParentToChild(childId, parentName)) {
+                        input.value = '';
+                        refreshClassUI();
+                        refreshIncomeParentsUI();
+                        alert('Родственник добавлен');
+                    }
+                } catch(err) {
+                    console.error('❌ Ошибка при добавлении родственника:', err);
+                    alert('Ошибка: ' + err.message);
                 }
             });
         });
-    }
 
-    // --- Обновление задолженностей ---
-    function refreshFeesUI() {
+        document.querySelectorAll('.remove-parent').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                try {
+                    const childId = parseFloat(this.dataset.childid);
+                    const parentId = parseFloat(this.dataset.parentid);
+                    if (confirm('Удалить этого родственника?')) {
+                        removeParentFromChild(childId, parentId);
+                        refreshClassUI();
+                        refreshIncomeParentsUI();
+                    }
+                } catch(err) {
+                    console.error('❌ Ошибка при удалении родственника:', err);
+                    alert('Ошибка: ' + err.message);
+                }
+            });
+        });
+
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                try {
+                    if (confirm('Удалить ученика и все данные по нему?')) {
+                        deleteChild(parseFloat(this.dataset.id));
+                        refreshClassUI();
+                        refreshIncomeParentsUI();
+                        refreshFeesUI();
+                    }
+                } catch(err) {
+                    console.error('❌ Ошибка при удалении ученика:', err);
+                    alert('Ошибка: ' + err.message);
+                }
+            });
+        });
+    } catch(err) {
+        console.error('❌ КРИТИЧЕСКАЯ ОШИБКА В refreshClassUI:', err);
+        alert('⚠️ Критическая ошибка в refreshClassUI: ' + err.message);
+    }
+}
+
+function refreshIncomeParentsUI() {
+    try {
+        const childSelect = document.getElementById('incomeChild');
+        const parentSelect = document.getElementById('incomeParent');
+        const childId = childSelect.value;
+        
+        parentSelect.innerHTML = '<option value="">Выберите из списка</option>';
+        
+        if (childId) {
+            const child = findChild(parseFloat(childId));
+            if (child && child.parents.length > 0) {
+                child.parents.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.id;
+                    opt.textContent = p.name;
+                    parentSelect.appendChild(opt);
+                });
+            }
+        }
+    } catch(e) {
+        console.error('❌ Ошибка refreshIncomeParentsUI:', e);
+    }
+}
+
+function refreshFundsUI() {
+    try {
+        const funds = getFunds();
+        const fundsList = document.getElementById('fundsList');
+        const select = document.getElementById('feeFundSelect');
+        const filterSelect = document.getElementById('debtFilterFund');
+        
+        if (funds.length === 0) {
+            fundsList.innerHTML = '<span style="color:#999;">Нет фондов</span>';
+        } else {
+            let html = '';
+            funds.forEach(f => {
+                html += `<span class="fund-tag">${f} <span class="remove-fund" data-fund="${f}" title="Удалить фонд">✕</span></span>`;
+            });
+            fundsList.innerHTML = html;
+            
+            document.querySelectorAll('.remove-fund').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const fund = this.dataset.fund;
+                    if (confirm(`Удалить фонд "${fund}" и все связанные взносы?`)) {
+                        removeFund(fund);
+                        refreshFundsUI();
+                        refreshFeesUI();
+                    }
+                });
+            });
+        }
+        
+        select.innerHTML = '<option value="">Выберите фонд</option>';
+        filterSelect.innerHTML = '<option value="">Все фонды</option>';
+        funds.forEach(f => {
+            const opt1 = document.createElement('option');
+            opt1.value = f;
+            opt1.textContent = f;
+            select.appendChild(opt1);
+            
+            const opt2 = document.createElement('option');
+            opt2.value = f;
+            opt2.textContent = f;
+            filterSelect.appendChild(opt2);
+        });
+    } catch(e) {
+        console.error('❌ Ошибка refreshFundsUI:', e);
+    }
+}
+
+function refreshFeesUI() {
+    try {
         const monthInput = document.getElementById('feeMonth');
         let month = monthInput.value;
         if (!month) {
-            // По умолчанию текущий месяц
             const now = new Date();
             month = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
             monthInput.value = month;
         }
-        const fee = getFeeForMonth(month);
-        document.getElementById('feeAmount').value = fee || '';
-
-        // Задолженности
-        const debts = calculateDebts(month);
+        
+        // Получаем фильтры
+        const filterName = document.getElementById('debtFilterName').value;
+        const filterFund = document.getElementById('debtFilterFund').value;
+        const filterPeriod = document.getElementById('debtFilterPeriod').value;
+        const filterMonth = document.getElementById('debtFilterMonth').value;
+        
+        // Используем фильтрованный месяц или текущий
+        const targetMonth = filterMonth || month;
+        
+        const debts = calculateDebts(targetMonth, filterName, filterFund, filterPeriod);
         const tbody = document.getElementById('debtTableBody');
         if (debts.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#999;">Нет родителей или не установлен взнос</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;">Нет данных</td></tr>';
             return;
         }
         let html = '';
         debts.forEach(d => {
-            const debtClass = d.debt > 0 ? 'debt' : '';
+            const cls = d.debt > 0 ? 'debt' : '';
+            const periodLabels = {
+                'monthly': 'Ежемесячно',
+                'quarterly': 'Ежеквартально',
+                'halfyear': 'За полугодие',
+                'yearly': 'Ежегодно',
+                'once': 'Разово'
+            };
             html += `<tr>
-                <td>${d.name}</td>
+                <td><strong>${d.childName}</strong></td>
+                <td><span class="fund-tag">${d.fund}</span></td>
+                <td><span class="badge period">${periodLabels[d.period] || d.period}</span></td>
                 <td>${d.fee.toFixed(2)} ₽</td>
                 <td>${d.paid.toFixed(2)} ₽</td>
-                <td><span class="badge ${debtClass}">${d.debt.toFixed(2)} ₽</span></td>
+                <td><span class="badge ${cls}">${d.debt.toFixed(2)} ₽</span></td>
             </tr>`;
         });
         tbody.innerHTML = html;
+    } catch(e) {
+        console.error('❌ Ошибка refreshFeesUI:', e);
     }
+}
 
-    // --- Полное обновление ---
-    function refreshUI() {
+function refreshUI() {
+    try {
+        console.log('🔄 Полное обновление UI...');
         const transactions = getTransactions();
         renderTransactions(transactions);
         updateBalance(transactions);
-        refreshParentsUI();
+        renderRecentIncomes();
+        refreshClassUI();
+        refreshIncomeParentsUI();
+        refreshFundsUI();
         refreshFeesUI();
+        console.log('✅ UI обновлён');
+    } catch(e) {
+        console.error('❌ Ошибка refreshUI:', e);
+        alert('Ошибка обновления интерфейса: ' + e.message);
     }
+}
 
-    // --- Фильтр ---
-    function applyFilter() {
-        const from = document.getElementById('filterFrom').value;
-        const to = document.getElementById('filterTo').value;
-        let list = getTransactions();
-        if (from) list = list.filter(t => t.date >= from);
-        if (to) list = list.filter(t => t.date <= to);
-        renderTransactions(list);
-        updateBalance(list);
-    }
-
-    function clearFilter() {
-        document.getElementById('filterFrom').value = '';
-        document.getElementById('filterTo').value = '';
-        refreshUI();
-    }
-
-    // --- Экспорт/Импорт ---
-    function exportData() {
-        const data = loadData();
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'backup_' + new Date().toISOString().split('T')[0] + '.json';
-        a.click();
-        URL.revokeObjectURL(url);
-    }
-
-    function importData(file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const data = JSON.parse(e.target.result);
-                if (data.parents && data.fees && data.transactions) {
-                    saveData(data);
-                    refreshUI();
-                    alert('Импорт выполнен успешно');
-                } else {
-                    alert('Неверный формат данных');
-                }
-            } catch(err) {
-                alert('Ошибка чтения файла: ' + err.message);
+function performSearch(query) {
+    try {
+        const children = getChildren();
+        const results = [];
+        
+        if (!query || query.length < 1) return results;
+        
+        const lowerQuery = query.toLowerCase().trim();
+        
+        children.forEach(child => {
+            if (child.name.toLowerCase().includes(lowerQuery)) {
+                results.push({
+                    type: 'child',
+                    childId: child.id,
+                    childName: child.name,
+                    displayName: child.name,
+                    subText: 'ученик'
+                });
             }
-        };
-        reader.readAsText(file);
-    }
-
-    // --- Переключение вкладок ---
-    function switchTab(tabId) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        const target = document.getElementById(tabId);
-        if (target) target.classList.add('active');
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.tab === tabId);
+            
+            child.parents.forEach(parent => {
+                if (parent.name.toLowerCase().includes(lowerQuery)) {
+                    results.push({
+                        type: 'parent',
+                        childId: child.id,
+                        childName: child.name,
+                        parentId: parent.id,
+                        parentName: parent.name,
+                        displayName: parent.name,
+                        subText: `родитель ${child.name}`
+                    });
+                }
+            });
         });
-        // Если переключились на вкладку Взносы, обновить
-        if (tabId === 'tabFees') refreshFeesUI();
-        if (tabId === 'tabParents') refreshParentsUI();
+        
+        const uniqueResults = [];
+        const seen = new Set();
+        results.forEach(r => {
+            const key = r.type + '_' + (r.childId) + '_' + (r.parentId || '');
+            if (!seen.has(key)) {
+                seen.add(key);
+                uniqueResults.push(r);
+            }
+        });
+        
+        return uniqueResults;
+    } catch(e) {
+        console.error('❌ Ошибка performSearch:', e);
+        return [];
     }
+}
 
-    // --- Инициализация ---
-    function init() {
-        // Проверка пароля
-        const hasPassword = localStorage.getItem(PASSWORD_KEY) !== null;
+// === СЕССИЯ И ПАРОЛЬ ===
+
+function startSession() { localStorage.setItem(SESSION_KEY, 'true'); }
+function endSession() { localStorage.removeItem(SESSION_KEY); }
+function isSessionActive() { return localStorage.getItem(SESSION_KEY) === 'true'; }
+
+function changePassword(oldPwd, newPwd, confirmPwd) {
+    try {
+        const stored = localStorage.getItem(PASSWORD_KEY);
+        if (!stored) return { success: false, message: 'Пароль не установлен' };
+        if (stored !== oldPwd) return { success: false, message: 'Неверный текущий пароль' };
+        if (newPwd.length < 4) return { success: false, message: 'Минимум 4 символа' };
+        if (newPwd !== confirmPwd) return { success: false, message: 'Пароли не совпадают' };
+        localStorage.setItem(PASSWORD_KEY, newPwd);
+        return { success: true, message: 'Пароль изменён' };
+    } catch(e) {
+        console.error('❌ Ошибка changePassword:', e);
+        return { success: false, message: 'Ошибка: ' + e.message };
+    }
+}
+
+// === ИНИЦИАЛИЗАЦИЯ ===
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('✅ DOM загружен, инициализация...');
+    
+    try {
         const loginPage = document.getElementById('loginPage');
         const mainPage = document.getElementById('mainPage');
         const loginPassword = document.getElementById('loginPassword');
         const loginBtn = document.getElementById('loginBtn');
         const loginError = document.getElementById('loginError');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        const hasPassword = localStorage.getItem(PASSWORD_KEY) !== null;
+
+        if (isSessionActive() && hasPassword) {
+            loginPage.classList.add('hidden');
+            mainPage.classList.remove('hidden');
+            refreshUI();
+            setDefaultDates();
+            return;
+        }
 
         if (!hasPassword) {
-            loginPassword.placeholder = 'Установите пароль (мин. 4 символа)';
+            loginPassword.placeholder = 'Установите пароль (мин. 4)';
             loginBtn.textContent = 'Установить';
         } else {
             loginPassword.placeholder = 'Введите пароль';
@@ -562,228 +1101,437 @@
         }
 
         loginBtn.addEventListener('click', function() {
-            const pwd = loginPassword.value.trim();
-            if (!pwd) {
-                loginError.textContent = 'Введите пароль';
-                loginError.classList.remove('hidden');
-                return;
-            }
-            if (!hasPassword) {
-                if (pwd.length < 4) {
-                    loginError.textContent = 'Минимум 4 символа';
+            try {
+                const pwd = loginPassword.value.trim();
+                if (!pwd) {
+                    loginError.textContent = 'Введите пароль';
                     loginError.classList.remove('hidden');
                     return;
                 }
-                localStorage.setItem(PASSWORD_KEY, pwd);
-                loginError.classList.add('hidden');
-                loginPage.classList.add('hidden');
-                mainPage.classList.remove('hidden');
-                // Если данных нет, создаём пустую структуру
-                if (!localStorage.getItem(DATA_KEY)) {
-                    saveData(getDefaultData());
+
+                if (!hasPassword) {
+                    if (pwd.length < 4) {
+                        loginError.textContent = 'Минимум 4 символа';
+                        loginError.classList.remove('hidden');
+                        return;
+                    }
+                    localStorage.setItem(PASSWORD_KEY, pwd);
+                    if (!localStorage.getItem(DATA_KEY)) saveData(getDefaultData());
+                    loginError.classList.add('hidden');
+                    loginPage.classList.add('hidden');
+                    mainPage.classList.remove('hidden');
+                    startSession();
+                    refreshUI();
+                    setDefaultDates();
+                    return;
                 }
-                refreshUI();
-                setDefaultDates();
-                return;
+
+                if (localStorage.getItem(PASSWORD_KEY) === pwd) {
+                    loginError.classList.add('hidden');
+                    loginPage.classList.add('hidden');
+                    mainPage.classList.remove('hidden');
+                    startSession();
+                    refreshUI();
+                    setDefaultDates();
+                } else {
+                    loginError.textContent = 'Неверный пароль';
+                    loginError.classList.remove('hidden');
+                }
+            } catch(err) {
+                console.error('❌ Ошибка при входе:', err);
+                alert('Ошибка: ' + err.message);
             }
-            if (localStorage.getItem(PASSWORD_KEY) === pwd) {
+        });
+
+        logoutBtn.addEventListener('click', function() {
+            try {
+                endSession();
+                mainPage.classList.add('hidden');
+                loginPage.classList.remove('hidden');
+                loginPassword.value = '';
                 loginError.classList.add('hidden');
-                loginPage.classList.add('hidden');
-                mainPage.classList.remove('hidden');
-                refreshUI();
-                setDefaultDates();
-            } else {
-                loginError.textContent = 'Неверный пароль';
-                loginError.classList.remove('hidden');
+            } catch(err) {
+                console.error('❌ Ошибка при выходе:', err);
             }
         });
 
-        document.getElementById('logoutBtn').addEventListener('click', function() {
-            mainPage.classList.add('hidden');
-            loginPage.classList.remove('hidden');
-            loginPassword.value = '';
-            loginError.classList.add('hidden');
-        });
-
-        // Вкладки
+        // === ВКЛАДКИ ===
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                switchTab(this.dataset.tab);
-            });
-        });
-
-        // Добавление родителя
-        document.getElementById('addParentBtn').addEventListener('click', function() {
-            const name = document.getElementById('parentName').value.trim();
-            if (!name) {
-                alert('Введите ФИО родителя');
-                return;
-            }
-            addParent(name);
-            document.getElementById('parentName').value = '';
-            refreshParentsUI();
-            refreshFeesUI();
-        });
-
-        // Установка взноса
-        document.getElementById('setFeeBtn').addEventListener('click', function() {
-            const month = document.getElementById('feeMonth').value;
-            const amount = parseFloat(document.getElementById('feeAmount').value);
-            if (!month) {
-                alert('Выберите месяц');
-                return;
-            }
-            if (isNaN(amount) || amount < 0) {
-                alert('Введите корректную сумму взноса');
-                return;
-            }
-            setFee(month, amount);
-            refreshFeesUI();
-            alert('Взнос установлен');
-        });
-
-        // Добавление прихода
-        document.getElementById('addIncomeBtn').addEventListener('click', function() {
-            const amount = parseFloat(document.getElementById('incomeAmount').value);
-            if (isNaN(amount) || amount <= 0) {
-                alert('Введите корректную сумму');
-                return;
-            }
-            const select = document.getElementById('incomeParent');
-            const manual = document.getElementById('incomeParentManual').value.trim();
-            let parentId = null;
-            let from = '';
-            if (select.value) {
-                parentId = parseFloat(select.value);
-                const parent = getParents().find(p => p.id === parentId);
-                from = parent ? parent.name : '';
-            } else if (manual) {
-                from = manual;
-            } else {
-                from = 'не указан';
-            }
-            const date = document.getElementById('incomeDate').value || new Date().toISOString().split('T')[0];
-            const comment = document.getElementById('incomeComment').value.trim();
-            const transaction = {
-                type: 'income',
-                amount: amount,
-                date: date,
-                from: from,
-                parentId: parentId,
-                comment: comment
-            };
-            addTransaction(transaction);
-            refreshUI();
-            document.getElementById('incomeAmount').value = '';
-            document.getElementById('incomeParent').value = '';
-            document.getElementById('incomeParentManual').value = '';
-            document.getElementById('incomeComment').value = '';
-            alert('Приход добавлен');
-        });
-
-        // Добавление расхода
-        document.getElementById('addExpenseBtn').addEventListener('click', function() {
-            const amount = parseFloat(document.getElementById('expenseAmount').value);
-            if (isNaN(amount) || amount <= 0) {
-                alert('Введите корректную сумму');
-                return;
-            }
-            const category = document.getElementById('expenseCategory').value;
-            const description = document.getElementById('expenseDescription').value.trim() || 'без описания';
-            const date = document.getElementById('expenseDate').value || new Date().toISOString().split('T')[0];
-            addTransaction({
-                type: 'expense',
-                amount: amount,
-                category: category,
-                description: description,
-                date: date
-            });
-            refreshUI();
-            document.getElementById('expenseAmount').value = '';
-            document.getElementById('expenseDescription').value = '';
-            alert('Расход добавлен');
-        });
-
-        // Фильтры
-        document.getElementById('filterApply').addEventListener('click', applyFilter);
-        document.getElementById('filterClear').addEventListener('click', clearFilter);
-
-        // Отчёт
-        document.getElementById('reportGenerate').addEventListener('click', function() {
-            const from = document.getElementById('reportFrom').value;
-            const to = document.getElementById('reportTo').value;
-            if (!from && !to) {
-                alert('Выберите хотя бы одну дату');
-                return;
-            }
-            let list = getTransactions();
-            if (from) list = list.filter(t => t.date >= from);
-            if (to) list = list.filter(t => t.date <= to);
-            const resultDiv = document.getElementById('reportResult');
-            if (list.length === 0) {
-                resultDiv.innerHTML = '<p style="color:#999;">За этот период операций нет.</p>';
-                return;
-            }
-            let income = 0, expense = 0;
-            list.forEach(t => {
-                if (t.type === 'income') income += t.amount;
-                else expense += t.amount;
-            });
-            const balance = income - expense;
-            let html = `<div style="background:#f1f4f9;padding:16px;border-radius:8px;margin-bottom:16px;">
-                <strong>Приходов:</strong> ${income.toFixed(2)} ₽<br>
-                <strong>Расходов:</strong> ${expense.toFixed(2)} ₽<br>
-                <strong>Баланс за период:</strong> <span style="font-weight:700;color:${balance>=0?'#27ae60':'#e74c3c'};">${balance.toFixed(2)} ₽</span>
-            </div>`;
-            html += `<table><thead><tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>Описание</th></tr></thead><tbody>`;
-            const sorted = list.slice().sort((a,b) => a.date.localeCompare(b.date));
-            sorted.forEach(t => {
-                const typeLabel = t.type === 'income' ? 'Приход' : 'Расход';
-                let desc = '';
-                if (t.type === 'income') {
-                    const parentName = t.parentId ? (getParents().find(p => p.id === t.parentId)?.name || '') : '';
-                    const from = t.from || parentName || 'не указан';
-                    desc = 'От: ' + from + (t.comment ? ' ('+t.comment+')' : '');
-                } else {
-                    desc = (t.description || '') + ' (' + (t.category || 'без категории') + ')';
+                try {
+                    const tabId = this.dataset.tab;
+                    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+                    document.getElementById(tabId).classList.add('active');
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    if (tabId === 'tabFees') { refreshFundsUI(); refreshFeesUI(); }
+                    if (tabId === 'tabClass') refreshClassUI();
+                    if (tabId === 'tabAddIncome') { refreshIncomeParentsUI(); renderRecentIncomes(); }
+                } catch(err) {
+                    console.error('❌ Ошибка при переключении вкладки:', err);
                 }
-                html += `<tr><td>${t.date}</td><td>${typeLabel}</td><td>${t.amount.toFixed(2)} ₽</td><td>${desc}</td></tr>`;
             });
-            html += '</tbody></table>';
-            resultDiv.innerHTML = html;
         });
 
-        // Экспорт
-        document.getElementById('exportBtn').addEventListener('click', exportData);
+        // === СМЕНА ПАРОЛЯ ===
+        const modal = document.getElementById('changePasswordModal');
+        document.getElementById('changePasswordBtn').addEventListener('click', function() {
+            modal.style.display = 'block';
+            document.getElementById('oldPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('newPasswordConfirm').value = '';
+            document.getElementById('passwordChangeMessage').classList.add('hidden');
+        });
+        document.getElementById('modalClose').addEventListener('click', function() { modal.style.display = 'none'; });
+        window.addEventListener('click', function(e) { if (e.target === modal) modal.style.display = 'none'; });
+        document.getElementById('changePasswordConfirmBtn').addEventListener('click', function() {
+            try {
+                const result = changePassword(
+                    document.getElementById('oldPassword').value.trim(),
+                    document.getElementById('newPassword').value.trim(),
+                    document.getElementById('newPasswordConfirm').value.trim()
+                );
+                const msg = document.getElementById('passwordChangeMessage');
+                msg.classList.remove('hidden');
+                msg.className = result.success ? 'alert alert-success' : 'alert alert-danger';
+                msg.textContent = result.message;
+                if (result.success) setTimeout(() => modal.style.display = 'none', 1500);
+            } catch(err) {
+                console.error('❌ Ошибка смены пароля:', err);
+                alert('Ошибка: ' + err.message);
+            }
+        });
 
-        // Импорт
+        // === ДОБАВЛЕНИЕ ФОНДА ===
+        document.getElementById('addFundBtn').addEventListener('click', function() {
+            try {
+                const fundName = document.getElementById('newFundName').value.trim();
+                if (!fundName) {
+                    alert('Введите название фонда');
+                    return;
+                }
+                if (addFund(fundName)) {
+                    document.getElementById('newFundName').value = '';
+                    refreshFundsUI();
+                    alert('✅ Фонд добавлен');
+                }
+            } catch(err) {
+                console.error('❌ Ошибка добавления фонда:', err);
+                alert('Ошибка: ' + err.message);
+            }
+        });
+
+        // === ДОБАВЛЕНИЕ УЧЕНИКА ===
+        document.getElementById('addChildBtn').addEventListener('click', function() {
+            try {
+                const childName = document.getElementById('childName').value.trim();
+                const parentName = document.getElementById('parentName').value.trim();
+                if (!childName) { alert('Введите ФИО ученика'); return; }
+                addChild(childName, parentName);
+                document.getElementById('childName').value = '';
+                document.getElementById('parentName').value = '';
+                refreshUI();
+                alert('✅ Ученик добавлен');
+            } catch(err) {
+                console.error('❌ Ошибка добавления ученика:', err);
+                alert('Ошибка: ' + err.message);
+            }
+        });
+
+        // === УСТАНОВКА ВЗНОСА ===
+        document.getElementById('setFeeBtn').addEventListener('click', function() {
+            try {
+                const fund = document.getElementById('feeFundSelect').value;
+                const period = document.getElementById('feePeriod').value;
+                const month = document.getElementById('feeMonth').value;
+                const amount = parseFloat(document.getElementById('feeAmount').value);
+                
+                if (!fund) {
+                    alert('Выберите фонд');
+                    return;
+                }
+                if (!month) {
+                    alert('Выберите месяц');
+                    return;
+                }
+                if (isNaN(amount) || amount <= 0) {
+                    alert('Введите корректную сумму взноса');
+                    return;
+                }
+                
+                setFee(fund, period, month, amount);
+                refreshFeesUI();
+                alert('✅ Взнос установлен!');
+            } catch(err) {
+                console.error('❌ Ошибка установки взноса:', err);
+                alert('Ошибка: ' + err.message);
+            }
+        });
+
+        // === ФИЛЬТРЫ ЗАДОЛЖЕННОСТЕЙ ===
+        document.getElementById('debtFilterApply').addEventListener('click', function() {
+            refreshFeesUI();
+        });
+        document.getElementById('debtFilterClear').addEventListener('click', function() {
+            document.getElementById('debtFilterName').value = '';
+            document.getElementById('debtFilterFund').value = '';
+            document.getElementById('debtFilterPeriod').value = '';
+            document.getElementById('debtFilterMonth').value = '';
+            refreshFeesUI();
+        });
+
+        // === ПРИ ВЫБОРЕ РЕБЁНКА ОБНОВЛЯЕМ РОДИТЕЛЕЙ ===
+        document.getElementById('incomeChild').addEventListener('change', function() {
+            refreshIncomeParentsUI();
+        });
+
+        // === ПОИСК ===
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        
+        searchInput.addEventListener('input', function() {
+            try {
+                const query = this.value.trim();
+                const results = performSearch(query);
+                
+                if (!query || results.length === 0) {
+                    searchResults.style.display = 'none';
+                    return;
+                }
+                
+                searchResults.innerHTML = '';
+                results.forEach(r => {
+                    const div = document.createElement('div');
+                    div.className = 'result-item';
+                    div.innerHTML = `
+                        <span class="highlight">${r.displayName}</span>
+                        <span class="sub-text">${r.subText}</span>
+                    `;
+                    div.addEventListener('click', function() {
+                        try {
+                            const childSelect = document.getElementById('incomeChild');
+                            childSelect.value = r.childId;
+                            refreshIncomeParentsUI();
+                            if (r.type === 'parent' && r.parentId) {
+                                const parentSelect = document.getElementById('incomeParent');
+                                parentSelect.value = r.parentId;
+                            }
+                            searchInput.value = r.displayName;
+                            searchResults.style.display = 'none';
+                        } catch(err) {
+                            console.error('❌ Ошибка выбора из поиска:', err);
+                        }
+                    });
+                    searchResults.appendChild(div);
+                });
+                searchResults.style.display = 'block';
+            } catch(err) {
+                console.error('❌ Ошибка поиска:', err);
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.search-container')) {
+                searchResults.style.display = 'none';
+            }
+        });
+
+        // === ДОБАВЛЕНИЕ ПРИХОДА (с очисткой поля "Ребёнок") ===
+        document.getElementById('addIncomeBtn').addEventListener('click', function() {
+            try {
+                const amount = parseFloat(document.getElementById('incomeAmount').value);
+                if (isNaN(amount) || amount <= 0) { alert('Введите сумму'); return; }
+                const childId = parseFloat(document.getElementById('incomeChild').value);
+                if (!childId) { alert('Выберите ученика'); return; }
+                
+                const parentSelect = document.getElementById('incomeParent');
+                let parentName = '';
+                if (parentSelect.value) {
+                    const child = findChild(childId);
+                    const parent = child ? child.parents.find(p => p.id === parseFloat(parentSelect.value)) : null;
+                    parentName = parent ? parent.name : 'не указан';
+                } else {
+                    parentName = 'не указан';
+                }
+                
+                const date = document.getElementById('incomeDate').value || new Date().toISOString().split('T')[0];
+                const comment = document.getElementById('incomeComment').value.trim();
+                const fund = document.getElementById('incomeFundType').value || 'Общий сбор';
+                
+                addTransaction({
+                    type: 'income',
+                    amount: amount,
+                    date: date,
+                    childId: childId,
+                    parentName: parentName,
+                    comment: comment,
+                    fund: fund
+                });
+                
+                // Очистка всех полей
+                document.getElementById('incomeAmount').value = '';
+                document.getElementById('incomeParent').value = '';
+                document.getElementById('incomeComment').value = '';
+                document.getElementById('searchInput').value = '';
+                document.getElementById('incomeChild').value = ''; // Очищаем поле "Ребёнок"
+                searchResults.style.display = 'none';
+                
+                refreshUI();
+                alert('✅ Приход добавлен');
+            } catch(err) {
+                console.error('❌ Ошибка добавления прихода:', err);
+                alert('Ошибка: ' + err.message);
+            }
+        });
+
+        // === ДОБАВЛЕНИЕ РАСХОДА ===
+        document.getElementById('addExpenseBtn').addEventListener('click', function() {
+            try {
+                const amount = parseFloat(document.getElementById('expenseAmount').value);
+                if (isNaN(amount) || amount <= 0) { alert('Введите сумму'); return; }
+                const category = document.getElementById('expenseCategory').value;
+                const description = document.getElementById('expenseDescription').value.trim() || 'без описания';
+                const date = document.getElementById('expenseDate').value || new Date().toISOString().split('T')[0];
+                addTransaction({ type: 'expense', amount: amount, category: category, description: description, date: date });
+                refreshUI();
+                document.getElementById('expenseAmount').value = '';
+                document.getElementById('expenseDescription').value = '';
+                alert('✅ Расход добавлен');
+            } catch(err) {
+                console.error('❌ Ошибка добавления расхода:', err);
+                alert('Ошибка: ' + err.message);
+            }
+        });
+
+        // === ФИЛЬТР ===
+        document.getElementById('filterApply').addEventListener('click', function() {
+            try {
+                const from = document.getElementById('filterFrom').value;
+                const to = document.getElementById('filterTo').value;
+                let list = getTransactions();
+                if (from) list = list.filter(t => t.date >= from);
+                if (to) list = list.filter(t => t.date <= to);
+                renderTransactions(list);
+                updateBalance(list);
+            } catch(err) {
+                console.error('❌ Ошибка фильтрации:', err);
+                alert('Ошибка: ' + err.message);
+            }
+        });
+        document.getElementById('filterClear').addEventListener('click', function() {
+            document.getElementById('filterFrom').value = '';
+            document.getElementById('filterTo').value = '';
+            refreshUI();
+        });
+
+        // === ОТЧЁТ ===
+        document.getElementById('reportGenerate').addEventListener('click', function() {
+            try {
+                const from = document.getElementById('reportFrom').value;
+                const to = document.getElementById('reportTo').value;
+                if (!from && !to) { alert('Выберите даты'); return; }
+                let list = getTransactions();
+                if (from) list = list.filter(t => t.date >= from);
+                if (to) list = list.filter(t => t.date <= to);
+                const div = document.getElementById('reportResult');
+                if (list.length === 0) { div.innerHTML = '<p style="color:#999;">Нет операций</p>'; return; }
+                let income = 0, expense = 0;
+                list.forEach(t => { if (t.type === 'income') income += t.amount; else expense += t.amount; });
+                const balance = income - expense;
+                let html = `<div style="background:#f1f4f9;padding:16px;border-radius:8px;margin-bottom:16px;">
+                    <strong>Приходов:</strong> ${income.toFixed(2)} ₽<br>
+                    <strong>Расходов:</strong> ${expense.toFixed(2)} ₽<br>
+                    <strong>Баланс:</strong> <span style="font-weight:700;color:${balance>=0?'#27ae60':'#e74c3c'};">${balance.toFixed(2)} ₽</span>
+                </div><table><thead><tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>Описание</th></tr></thead><tbody>`;
+                list.sort((a,b) => a.date.localeCompare(b.date));
+                list.forEach(t => {
+                    const typeLabel = t.type === 'income' ? 'Приход' : 'Расход';
+                    let desc = '';
+                    if (t.type === 'income') {
+                        const child = findChild(t.childId);
+                        const childName = child ? child.name : 'неизвестный ученик';
+                        desc = `${childName} — от: ${t.parentName || 'не указан'}` + (t.comment ? ' ('+t.comment+')' : '');
+                        if (t.fund) desc += ` [${t.fund}]`;
+                    } else {
+                        desc = (t.description || '') + ' (' + (t.category || 'без категории') + ')';
+                    }
+                    html += `<tr><td>${t.date}</td><td>${typeLabel}</td><td>${t.amount.toFixed(2)} ₽</td><td>${desc}</td></tr>`;
+                });
+                html += '</tbody></table>';
+                div.innerHTML = html;
+            } catch(err) {
+                console.error('❌ Ошибка генерации отчёта:', err);
+                alert('Ошибка: ' + err.message);
+            }
+        });
+
+        // === ЭКСПОРТ/ИМПОРТ ===
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            try {
+                const data = loadData();
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'backup_' + new Date().toISOString().split('T')[0] + '.json';
+                a.click();
+                URL.revokeObjectURL(url);
+            } catch(err) {
+                console.error('❌ Ошибка экспорта:', err);
+                alert('Ошибка: ' + err.message);
+            }
+        });
         document.getElementById('importBtn').addEventListener('click', function() {
             document.getElementById('importFile').click();
         });
         document.getElementById('importFile').addEventListener('change', function(e) {
             if (e.target.files.length > 0) {
-                importData(e.target.files[0]);
-                this.value = '';
+                try {
+                    const reader = new FileReader();
+                    reader.onload = function(ev) {
+                        try {
+                            const data = JSON.parse(ev.target.result);
+                            if (data.children && data.fees && data.transactions && data.funds) {
+                                saveData(data);
+                                refreshUI();
+                                alert('Импорт выполнен');
+                            } else {
+                                alert('Неверный формат');
+                            }
+                        } catch(err) {
+                            console.error('❌ Ошибка чтения файла:', err);
+                            alert('Ошибка чтения: ' + err.message);
+                        }
+                    };
+                    reader.readAsText(e.target.files[0]);
+                    this.value = '';
+                } catch(err) {
+                    console.error('❌ Ошибка импорта:', err);
+                    alert('Ошибка: ' + err.message);
+                }
             }
         });
 
         function setDefaultDates() {
-            const today = new Date().toISOString().split('T')[0];
-            if (!document.getElementById('incomeDate').value) document.getElementById('incomeDate').value = today;
-            if (!document.getElementById('expenseDate').value) document.getElementById('expenseDate').value = today;
-            // Установить текущий месяц для взносов
-            const now = new Date();
-            const month = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
-            if (!document.getElementById('feeMonth').value) document.getElementById('feeMonth').value = month;
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                if (!document.getElementById('incomeDate').value) document.getElementById('incomeDate').value = today;
+                if (!document.getElementById('expenseDate').value) document.getElementById('expenseDate').value = today;
+                const now = new Date();
+                const month = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+                if (!document.getElementById('feeMonth').value) document.getElementById('feeMonth').value = month;
+                if (!document.getElementById('debtFilterMonth').value) document.getElementById('debtFilterMonth').value = month;
+            } catch(e) {
+                console.error('❌ Ошибка setDefaultDates:', e);
+            }
         }
+        
+        console.log('✅ Инициализация завершена');
+    } catch(err) {
+        console.error('❌ КРИТИЧЕСКАЯ ОШИБКА ПРИ ИНИЦИАЛИЗАЦИИ:', err);
+        alert('⚠️ Критическая ошибка при запуске: ' + err.message + '\n\nСмотрите консоль (F12).');
     }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
-    }
-})();
+});
 </script>
 </body>
 </html>
