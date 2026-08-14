@@ -126,6 +126,9 @@
         .filter-section .form-group { margin-bottom: 0; flex: 1 1 150px; }
         .filter-section .form-group label { font-size: 12px; }
 
+        .period-selector { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .period-selector .btn { padding: 6px 14px; font-size: 13px; }
+
         @media (max-width: 768px) {
             .container { padding: 16px; }
             .flex-row { flex-direction: column; align-items: stretch; }
@@ -256,23 +259,49 @@
             </div>
         </div>
 
+        <!-- Расход (с добавленным списком) -->
         <div id="tabAddExpense" class="tab-content">
             <div class="card">
-                <h3>Добавить расход</h3>
+                <h3>➖ Добавить расход</h3>
                 <div class="flex-row">
-                    <div class="form-group"><label>Сумма (₽)</label><input type="number" id="expenseAmount" step="0.01"></div>
-                    <div class="form-group"><label>Категория</label>
+                    <div class="form-group">
+                        <label>Сумма (₽)</label>
+                        <input type="number" id="expenseAmount" step="0.01" placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Категория</label>
                         <select id="expenseCategory">
-                            <option>Канцтовары</option><option>Подарки</option>
-                            <option>Мероприятия</option><option>Прочее</option>
+                            <option>Канцтовары</option>
+                            <option>Подарки</option>
+                            <option>Мероприятия</option>
+                            <option>Хознужды</option>
+                            <option>Прочее</option>
                         </select>
                     </div>
                 </div>
                 <div class="flex-row">
-                    <div class="form-group"><label>Дата</label><input type="date" id="expenseDate"></div>
-                    <div class="form-group" style="flex:2;"><label>Описание</label><input type="text" id="expenseDescription"></div>
+                    <div class="form-group">
+                        <label>Дата</label>
+                        <input type="date" id="expenseDate">
+                    </div>
+                    <div class="form-group" style="flex:2;">
+                        <label>Описание</label>
+                        <input type="text" id="expenseDescription" placeholder="что и для кого купили">
+                    </div>
                 </div>
                 <button class="btn btn-danger" id="addExpenseBtn">➖ Добавить расход</button>
+            </div>
+
+            <div class="card">
+                <h4>📋 Последние расходы</h4>
+                <div style="overflow-x:auto; max-height:300px; overflow-y:auto;">
+                    <table>
+                        <thead><tr><th>Дата</th><th>Сумма</th><th>Категория</th><th>Описание</th></tr></thead>
+                        <tbody id="recentExpensesTable">
+                            <tr><td colspan="4" style="text-align:center;color:#999;">Нет расходов</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -343,7 +372,6 @@
                 <div style="margin-top:20px;">
                     <h4>Задолженности</h4>
                     
-                    <!-- Фильтры -->
                     <div class="filter-section">
                         <div class="flex-row">
                             <div class="form-group">
@@ -357,7 +385,7 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>Период</label>
+                                <label>Периодичность</label>
                                 <select id="debtFilterPeriod">
                                     <option value="">Все периоды</option>
                                     <option value="monthly">Ежемесячно</option>
@@ -388,14 +416,35 @@
             </div>
         </div>
 
+        <!-- Отчёт (расширенный) -->
         <div id="tabReport" class="tab-content">
             <div class="card">
-                <h3>Отчёт за период</h3>
-                <div class="flex-row">
-                    <div class="form-group"><label>С</label><input type="date" id="reportFrom"></div>
-                    <div class="form-group"><label>По</label><input type="date" id="reportTo"></div>
-                    <button class="btn" id="reportGenerate">Сформировать</button>
+                <h3>📈 Отчёт</h3>
+                
+                <div style="margin-bottom:16px;">
+                    <label style="font-weight:600; display:block; margin-bottom:8px;">Быстрый выбор периода:</label>
+                    <div class="period-selector">
+                        <button class="btn btn-outline period-btn" data-period="month">Текущий месяц</button>
+                        <button class="btn btn-outline period-btn" data-period="quarter">Текущий квартал</button>
+                        <button class="btn btn-outline period-btn" data-period="halfyear">Текущее полугодие</button>
+                        <button class="btn btn-outline period-btn" data-period="year">Текущий год</button>
+                        <button class="btn btn-outline period-btn" data-period="all">За всё время</button>
+                    </div>
                 </div>
+
+                <div class="flex-row" style="border-top:1px solid #e9ecf0; padding-top:16px;">
+                    <div class="form-group">
+                        <label>С (начало периода)</label>
+                        <input type="date" id="reportFrom">
+                    </div>
+                    <div class="form-group">
+                        <label>По (конец периода)</label>
+                        <input type="date" id="reportTo">
+                    </div>
+                    <button class="btn" id="reportGenerate">Сформировать</button>
+                    <button class="btn btn-outline" id="reportClear">Очистить</button>
+                </div>
+
                 <div id="reportResult" style="margin-top:16px;"></div>
             </div>
         </div>
@@ -431,9 +480,9 @@ const SESSION_KEY = 'class_treasurer_session';
 function getDefaultData() {
     return { 
         children: [], 
-        fees: [],          // [{fund, period, month, amount}]
+        fees: [],
         funds: ['Общий сбор', 'Театр', 'Подарки', 'Экскурсия', 'Канцтовары'],
-        transactions: []   // [{type, amount, date, childId, parentName, comment, fund}]
+        transactions: []
     };
 }
 
@@ -623,14 +672,10 @@ function calculateDebts(month, filterName, filterFund, filterPeriod) {
             const feeData = getFeeForMonth(fund, month);
             if (!feeData) return;
             
-            // Применяем фильтр по фонду
             if (filterFund && filterFund !== '' && fund !== filterFund) return;
-            
-            // Применяем фильтр по периодичности
             if (filterPeriod && filterPeriod !== '' && feeData.period !== filterPeriod) return;
             
             children.forEach(child => {
-                // Применяем фильтр по имени
                 if (filterName && filterName.trim() !== '') {
                     if (!child.name.toLowerCase().includes(filterName.toLowerCase())) return;
                 }
@@ -655,6 +700,43 @@ function calculateDebts(month, filterName, filterFund, filterPeriod) {
         console.error('❌ Ошибка calculateDebts:', e);
         return [];
     }
+}
+
+// === ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ДЛЯ ОТЧЁТОВ ===
+function getPeriodDates(period) {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    let from, to;
+    
+    switch(period) {
+        case 'month':
+            from = new Date(year, month, 1);
+            to = new Date(year, month + 1, 0);
+            break;
+        case 'quarter':
+            const quarterMonth = Math.floor(month / 3) * 3;
+            from = new Date(year, quarterMonth, 1);
+            to = new Date(year, quarterMonth + 3, 0);
+            break;
+        case 'halfyear':
+            const halfMonth = month < 6 ? 0 : 6;
+            from = new Date(year, halfMonth, 1);
+            to = new Date(year, halfMonth + 6, 0);
+            break;
+        case 'year':
+            from = new Date(year, 0, 1);
+            to = new Date(year, 11, 31);
+            break;
+        case 'all':
+        default:
+            return null;
+    }
+    
+    return {
+        from: from.toISOString().split('T')[0],
+        to: to.toISOString().split('T')[0]
+    };
 }
 
 // === UI ===
@@ -724,6 +806,37 @@ function renderRecentIncomes() {
     }
 }
 
+function renderRecentExpenses() {
+    try {
+        const tbody = document.getElementById('recentExpensesTable');
+        if (!tbody) return;
+        
+        const transactions = getTransactions();
+        const expenses = transactions.filter(t => t.type === 'expense');
+        
+        if (expenses.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#999;">Нет расходов</td></tr>';
+            return;
+        }
+        
+        const sorted = [...expenses].sort((a,b) => a.date < b.date ? 1 : -1);
+        const recent = sorted.slice(0, 20);
+        
+        let html = '';
+        recent.forEach(t => {
+            html += `<tr>
+                <td>${t.date}</td>
+                <td>${t.amount.toFixed(2)} ₽</td>
+                <td><span class="badge expense">${t.category || 'без категории'}</span></td>
+                <td>${t.description || ''}</td>
+            </tr>`;
+        });
+        tbody.innerHTML = html;
+    } catch(e) {
+        console.error('❌ Ошибка renderRecentExpenses:', e);
+    }
+}
+
 function updateBalance(list) {
     try {
         let balance = 0;
@@ -740,7 +853,6 @@ function updateBalance(list) {
     }
 }
 
-// === ОСНОВНАЯ ФУНКЦИЯ ОБНОВЛЕНИЯ КЛАССА ===
 function refreshClassUI() {
     console.log('🔄 refreshClassUI() начат');
     try {
@@ -938,13 +1050,11 @@ function refreshFeesUI() {
             monthInput.value = month;
         }
         
-        // Получаем фильтры
         const filterName = document.getElementById('debtFilterName').value;
         const filterFund = document.getElementById('debtFilterFund').value;
         const filterPeriod = document.getElementById('debtFilterPeriod').value;
         const filterMonth = document.getElementById('debtFilterMonth').value;
         
-        // Используем фильтрованный месяц или текущий
         const targetMonth = filterMonth || month;
         
         const debts = calculateDebts(targetMonth, filterName, filterFund, filterPeriod);
@@ -985,6 +1095,7 @@ function refreshUI() {
         renderTransactions(transactions);
         updateBalance(transactions);
         renderRecentIncomes();
+        renderRecentExpenses();
         refreshClassUI();
         refreshIncomeParentsUI();
         refreshFundsUI();
@@ -1167,6 +1278,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (tabId === 'tabFees') { refreshFundsUI(); refreshFeesUI(); }
                     if (tabId === 'tabClass') refreshClassUI();
                     if (tabId === 'tabAddIncome') { refreshIncomeParentsUI(); renderRecentIncomes(); }
+                    if (tabId === 'tabAddExpense') { renderRecentExpenses(); }
                 } catch(err) {
                     console.error('❌ Ошибка при переключении вкладки:', err);
                 }
@@ -1336,7 +1448,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // === ДОБАВЛЕНИЕ ПРИХОДА (с очисткой поля "Ребёнок") ===
+        // === ДОБАВЛЕНИЕ ПРИХОДА ===
         document.getElementById('addIncomeBtn').addEventListener('click', function() {
             try {
                 const amount = parseFloat(document.getElementById('incomeAmount').value);
@@ -1368,12 +1480,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     fund: fund
                 });
                 
-                // Очистка всех полей
                 document.getElementById('incomeAmount').value = '';
                 document.getElementById('incomeParent').value = '';
                 document.getElementById('incomeComment').value = '';
                 document.getElementById('searchInput').value = '';
-                document.getElementById('incomeChild').value = ''; // Очищаем поле "Ребёнок"
+                document.getElementById('incomeChild').value = '';
                 searchResults.style.display = 'none';
                 
                 refreshUI();
@@ -1424,27 +1535,66 @@ document.addEventListener('DOMContentLoaded', function() {
             refreshUI();
         });
 
-        // === ОТЧЁТ ===
+        // === ОТЧЁТ (расширенный) ===
+        // Быстрые периоды
+        document.querySelectorAll('.period-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const period = this.dataset.period;
+                const dates = getPeriodDates(period);
+                
+                if (dates) {
+                    document.getElementById('reportFrom').value = dates.from;
+                    document.getElementById('reportTo').value = dates.to;
+                } else {
+                    document.getElementById('reportFrom').value = '';
+                    document.getElementById('reportTo').value = '';
+                }
+            });
+        });
+
         document.getElementById('reportGenerate').addEventListener('click', function() {
             try {
                 const from = document.getElementById('reportFrom').value;
                 const to = document.getElementById('reportTo').value;
-                if (!from && !to) { alert('Выберите даты'); return; }
+                
+                if (!from && !to) { 
+                    alert('Выберите период (даты или используйте быстрый выбор)');
+                    return; 
+                }
+                
                 let list = getTransactions();
                 if (from) list = list.filter(t => t.date >= from);
                 if (to) list = list.filter(t => t.date <= to);
+                
                 const div = document.getElementById('reportResult');
-                if (list.length === 0) { div.innerHTML = '<p style="color:#999;">Нет операций</p>'; return; }
+                if (list.length === 0) { 
+                    div.innerHTML = '<p style="color:#999;">Нет операций за выбранный период</p>'; 
+                    return; 
+                }
+                
                 let income = 0, expense = 0;
-                list.forEach(t => { if (t.type === 'income') income += t.amount; else expense += t.amount; });
+                list.forEach(t => { 
+                    if (t.type === 'income') income += t.amount; 
+                    else expense += t.amount; 
+                });
                 const balance = income - expense;
-                let html = `<div style="background:#f1f4f9;padding:16px;border-radius:8px;margin-bottom:16px;">
-                    <strong>Приходов:</strong> ${income.toFixed(2)} ₽<br>
-                    <strong>Расходов:</strong> ${expense.toFixed(2)} ₽<br>
-                    <strong>Баланс:</strong> <span style="font-weight:700;color:${balance>=0?'#27ae60':'#e74c3c'};">${balance.toFixed(2)} ₽</span>
-                </div><table><thead><tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>Описание</th></tr></thead><tbody>`;
-                list.sort((a,b) => a.date.localeCompare(b.date));
-                list.forEach(t => {
+                
+                let html = `
+                    <div style="background:#f1f4f9;padding:16px;border-radius:8px;margin-bottom:16px;">
+                        <div style="display:flex; flex-wrap:wrap; gap:16px;">
+                            <div><strong>📅 Период:</strong> ${from || 'все'} — ${to || 'все'}</div>
+                            <div><strong>📈 Приходов:</strong> <span style="color:#27ae60;font-weight:700;">${income.toFixed(2)} ₽</span></div>
+                            <div><strong>📉 Расходов:</strong> <span style="color:#e74c3c;font-weight:700;">${expense.toFixed(2)} ₽</span></div>
+                            <div><strong>💰 Баланс:</strong> <span style="font-weight:700;color:${balance>=0?'#27ae60':'#e74c3c'};">${balance.toFixed(2)} ₽</span></div>
+                            <div><strong>📊 Всего операций:</strong> ${list.length}</div>
+                        </div>
+                    </div>
+                    <table>
+                        <thead><tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>Описание</th></tr></thead>
+                        <tbody>`;
+                
+                const sorted = list.slice().sort((a,b) => a.date.localeCompare(b.date));
+                sorted.forEach(t => {
                     const typeLabel = t.type === 'income' ? 'Приход' : 'Расход';
                     let desc = '';
                     if (t.type === 'income') {
@@ -1455,7 +1605,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     } else {
                         desc = (t.description || '') + ' (' + (t.category || 'без категории') + ')';
                     }
-                    html += `<tr><td>${t.date}</td><td>${typeLabel}</td><td>${t.amount.toFixed(2)} ₽</td><td>${desc}</td></tr>`;
+                    html += `<tr>
+                        <td>${t.date}</td>
+                        <td><span class="badge ${t.type === 'income' ? 'income' : 'expense'}">${typeLabel}</span></td>
+                        <td>${t.amount.toFixed(2)} ₽</td>
+                        <td>${desc}</td>
+                    </tr>`;
                 });
                 html += '</tbody></table>';
                 div.innerHTML = html;
@@ -1463,6 +1618,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('❌ Ошибка генерации отчёта:', err);
                 alert('Ошибка: ' + err.message);
             }
+        });
+
+        document.getElementById('reportClear').addEventListener('click', function() {
+            document.getElementById('reportFrom').value = '';
+            document.getElementById('reportTo').value = '';
+            document.getElementById('reportResult').innerHTML = '';
         });
 
         // === ЭКСПОРТ/ИМПОРТ ===
