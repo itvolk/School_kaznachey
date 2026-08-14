@@ -1609,6 +1609,7 @@ function exportForParents() {
         const children = data.children || [];
         const transactions = data.transactions || [];
         const funds = data.funds || ['Общий сбор'];
+        const fees = data.fees || []; // Добавляем взносы
         
         let balance = 0;
         transactions.forEach(t => {
@@ -1631,6 +1632,7 @@ function exportForParents() {
             totalIncome: totalIncome,
             totalExpense: totalExpense,
             funds: funds,
+            fees: fees, // Добавляем взносы
             children: children.map(child => ({
                 id: child.id,
                 name: child.name,
