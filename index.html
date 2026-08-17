@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Казначей класса</title>
+    <title>Казначей 1 "Е" класса</title>
     
     <!-- PWA мета-теги -->
     <link rel="manifest" href="manifest.json">
@@ -453,7 +453,7 @@
     <!-- ОСНОВНОЙ ИНТЕРФЕЙС -->
     <div id="mainPage">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
-            <h1 style="font-size:20px; margin:0;">📊 Казначей класса</h1>
+            <h1 style="font-size:20px; margin:0;">📊 Казначей 1 "Е" класса</h1>
             <div class="header-actions">
                 <button class="btn btn-contact btn-sm" id="contactBtn">💬 Связь с автором</button>
                 <button class="btn btn-outline btn-sm" id="changePasswordBtn">🔑 Сменить пароль</button>
@@ -1690,6 +1690,7 @@ function clearAllData() {
     }
 }
 
+
 function exportForParents() {
     try {
         const data = loadData();
@@ -1712,7 +1713,7 @@ function exportForParents() {
         });
         
         const parentData = {
-            version: '1.0',
+            version: '1.1',
             exportDate: new Date().toISOString().split('T')[0],
             exportTime: new Date().toLocaleTimeString(),
             balance: balance,
@@ -1723,8 +1724,7 @@ function exportForParents() {
             children: children.map(child => ({
                 id: child.id,
                 name: child.name,
-                birthdate: child.birthdate || null,
-                parents: child.parents.map(p => p.name)
+                birthdate: child.birthdate || null
             })),
             transactions: transactions.map(t => {
                 const child = children.find(c => c.id === t.childId);
@@ -1734,7 +1734,6 @@ function exportForParents() {
                     type: t.type,
                     amount: t.amount,
                     childName: child ? child.name : null,
-                    parentName: t.parentName || null,
                     fund: t.fund || null,
                     comment: t.comment || null,
                     description: t.description || null,
@@ -1754,13 +1753,13 @@ function exportForParents() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `parents_data_${new Date().toISOString().split('T')[0]}.json`;
+        a.download = 'parents.json'; // ИЗМЕНЕНО: всегда parents.json
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
         
-        alert('✅ Файл для родителей успешно создан и скачан!');
+        alert('✅ Файл для родителей (parents.json) успешно создан и скачан!');
     } catch(err) {
         console.error('❌ Ошибка экспорта для родителей:', err);
         alert('Ошибка: ' + err.message);
