@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Казначей класса</title>
+    
+    <!-- PWA мета-теги -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4f8cf7">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { 
@@ -129,6 +137,7 @@
         .badge.debt { background: #fff3cd; color: #856404; }
         .badge.fund { background: #d1ecf1; color: #0c5460; }
         .badge.period { background: #e8daef; color: #6c3483; }
+        .badge.birthday { background: #fce4ec; color: #c62828; }
         
         .delete-btn { background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 16px; padding: 4px 6px; touch-action: manipulation; }
         .delete-btn:hover { color: #c0392b; }
@@ -308,6 +317,32 @@
             white-space: nowrap;
         }
 
+        .birthdate-input {
+            width: 130px;
+            padding: 4px 6px;
+            font-size: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: #fff;
+        }
+        .birthdate-input:focus {
+            border-color: #4f8cf7;
+            outline: none;
+        }
+
+        .debt-filter-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .debt-filter-row .filter-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+        }
+
         @media (max-width: 768px) {
             body { padding: 8px; }
             .container { padding: 12px; border-radius: 12px; }
@@ -358,15 +393,6 @@
             .period-selector { flex-direction: row; flex-wrap: wrap; }
             .period-selector .btn { flex: 1 1 auto; min-width: 80px; width: auto; }
             
-            .add-parent-row { flex-wrap: wrap; }
-            .add-parent-row input { min-width: 120px; }
-            
-            .search-results { max-height: 150px; }
-            .search-results .result-item { padding: 10px 12px; font-size: 14px; }
-            
-            .funds-list { gap: 3px; }
-            .fund-tag { font-size: 10px; padding: 2px 6px; }
-            
             .header-actions { width: 100%; justify-content: flex-start; }
             
             .file-preview { max-width: 80px; max-height: 80px; }
@@ -375,6 +401,9 @@
                 padding: 2px 6px !important;
                 font-size: 10px !important;
             }
+            .birthdate-input { width: 100px; font-size: 11px; }
+            
+            .debt-filter-row { flex-direction: column; align-items: stretch; }
         }
 
         @media (max-width: 480px) {
@@ -400,6 +429,7 @@
                 padding: 2px 4px !important;
                 font-size: 9px !important;
             }
+            .birthdate-input { width: 80px; font-size: 10px; }
         }
 
         @media (max-width: 360px) {
@@ -413,6 +443,7 @@
                 font-size: 8px !important;
                 padding: 1px 3px !important;
             }
+            .birthdate-input { width: 70px; font-size: 9px; }
         }
     </style>
 </head>
@@ -461,7 +492,7 @@
             <div class="table-wrapper">
                 <table>
                     <thead><tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>Описание</th><th>Чек</th><th>Действия</th></tr></thead>
-                    <tbody id="tableBody"><tr><td colspan="7" style="text-align:center;color:#999;">Нет операций</td></tr></tbody>
+                    <tbody id="tableBody"><tr><td colspan="6" style="text-align:center;color:#999;">Нет операций</td></tr></tbody>
                 </table>
             </div>
         </div>
@@ -588,8 +619,8 @@
                 </div>
                 <div class="table-wrapper">
                     <table>
-                        <thead><tr><th>#</th><th>Ученик</th><th>Родственники</th><th>Действие</th></tr></thead>
-                        <tbody id="classTableBody"><tr><td colspan="4" style="text-align:center;color:#999;">Нет учеников</td></tr></tbody>
+                        <thead><tr><th>#</th><th>Ученик</th><th>Дата рождения</th><th>Родственники</th><th>Действие</th></tr></thead>
+                        <tbody id="classTableBody"><tr><td colspan="5" style="text-align:center;color:#999;">Нет учеников</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -644,6 +675,13 @@
                 <div style="margin-top:16px;">
                     <h4>Задолженности</h4>
                     
+                    <div class="debt-filter-row">
+                        <span class="filter-label">🔍 Фильтр:</span>
+                        <button class="btn btn-filter btn-sm" id="debtFilterAll" style="min-height:32px;">Все</button>
+                        <button class="btn btn-outline btn-sm" id="debtFilterDebtors" style="min-height:32px;">📌 Только должники</button>
+                        <span style="font-size:12px; color:#888; margin-left:8px;" id="debtCountInfo">Всего: 0</span>
+                    </div>
+
                     <div class="filter-section">
                         <div class="flex-row">
                             <div class="form-group">
@@ -773,6 +811,19 @@ window.onerror = function(message, source, lineno, colno, error) {
 
 console.log('✅ Скрипт запущен');
 
+// === РЕГИСТРАЦИЯ SERVICE WORKER ===
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('sw.js')
+            .then(function(registration) {
+                console.log('✅ Service Worker зарегистрирован');
+            })
+            .catch(function(error) {
+                console.error('❌ Ошибка регистрации Service Worker:', error);
+            });
+    });
+}
+
 // === ДАННЫЕ ===
 const PASSWORD_KEY = 'class_treasurer_password';
 const DATA_KEY = 'class_treasurer_data';
@@ -826,7 +877,7 @@ function addChild(childName, parentName) {
         const data = loadData();
         let child = data.children.find(c => c.name === childName);
         if (!child) {
-            child = { id: Date.now() + Math.random(), name: childName, parents: [] };
+            child = { id: Date.now() + Math.random(), name: childName, parents: [], birthdate: '' };
             data.children.push(child);
         }
         if (parentName && parentName.trim()) {
@@ -960,7 +1011,7 @@ function getFeeForMonth(fund, month) {
     }
 }
 
-function calculateDebts(month, filterName, filterFund, filterPeriod) {
+function calculateDebts(month, filterName, filterFund, filterPeriod, showOnlyDebtors) {
     try {
         const children = getChildren();
         const transactions = getTransactions();
@@ -984,14 +1035,19 @@ function calculateDebts(month, filterName, filterFund, filterPeriod) {
                 const paid = transactions
                     .filter(t => t.type === 'income' && t.childId === child.id && t.date && t.date.startsWith(month) && t.fund === fund)
                     .reduce((sum, t) => sum + t.amount, 0);
+                
+                const debt = feeData.amount - paid;
+                
+                if (showOnlyDebtors && debt <= 0) return;
                     
                 results.push({ 
                     childName: child.name, 
+                    childId: child.id,
                     fund: fund, 
                     period: feeData.period,
                     fee: feeData.amount, 
                     paid: paid, 
-                    debt: feeData.amount - paid 
+                    debt: debt 
                 });
             });
         });
@@ -1046,7 +1102,7 @@ function renderTransactions(list) {
         const tbody = document.getElementById('tableBody');
         if (!tbody) return;
         if (!list || list.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;">Нет операций</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;">Нет операций</td></tr>';
             return;
         }
         const sorted = [...list].sort((a,b) => a.date < b.date ? 1 : -1);
@@ -1290,7 +1346,7 @@ function refreshClassUI() {
         if (!tbody) return;
         
         if (children.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#999;">Нет учеников</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;">Нет учеников</td></tr>';
             return;
         }
         
@@ -1305,9 +1361,17 @@ function refreshClassUI() {
                 ).join(' ');
             }
             
+            const birthdate = c.birthdate || '';
+            const today = new Date();
+            const birthMonth = birthdate ? parseInt(birthdate.split('-')[1]) : 0;
+            const isBirthdayMonth = birthMonth === today.getMonth() + 1;
+            
             html += `<tr data-childid="${c.id}">
                 <td>${i+1}</td>
-                <td><strong>${c.name}</strong></td>
+                <td><strong>${c.name}</strong> ${isBirthdayMonth ? '<span class="badge birthday" title="День рождения в этом месяце!">🎂</span>' : ''}</td>
+                <td>
+                    <input type="date" class="birthdate-input" data-childid="${c.id}" value="${birthdate}" style="width:130px; padding:4px 6px; font-size:12px; border:1px solid #ccc; border-radius:4px;">
+                </td>
                 <td>
                     <div class="parents-list">${parentsHtml}</div>
                     <div class="add-parent-row">
@@ -1319,6 +1383,20 @@ function refreshClassUI() {
             </tr>`;
         });
         tbody.innerHTML = html;
+
+        document.querySelectorAll('.birthdate-input').forEach(input => {
+            input.addEventListener('change', function() {
+                const childId = parseFloat(this.dataset.childid);
+                const birthdate = this.value;
+                const data = loadData();
+                const child = data.children.find(c => c.id === childId);
+                if (child) {
+                    child.birthdate = birthdate;
+                    saveData(data);
+                    refreshClassUI();
+                }
+            });
+        });
 
         document.querySelectorAll('.add-parent-btn').forEach(btn => {
             btn.addEventListener('click', function(e) {
@@ -1456,6 +1534,8 @@ function refreshFundsUI() {
     }
 }
 
+let showOnlyDebtors = false;
+
 function refreshFeesUI() {
     try {
         const monthInput = document.getElementById('feeMonth');
@@ -1473,10 +1553,18 @@ function refreshFeesUI() {
         
         const targetMonth = filterMonth || month;
         
-        const debts = calculateDebts(targetMonth, filterName, filterFund, filterPeriod);
+        const debts = calculateDebts(targetMonth, filterName, filterFund, filterPeriod, showOnlyDebtors);
         const tbody = document.getElementById('debtTableBody');
+        
+        const totalDebtors = debts.filter(d => d.debt > 0).length;
+        document.getElementById('debtCountInfo').textContent = showOnlyDebtors ? 
+            `Должников: ${totalDebtors}` : 
+            `Всего: ${debts.length} (должников: ${totalDebtors})`;
+        
         if (debts.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;">Нет данных</td></tr>';
+            tbody.innerHTML = showOnlyDebtors ? 
+                '<tr><td colspan="6" style="text-align:center;color:#999;">Нет должников</td></tr>' :
+                '<tr><td colspan="6" style="text-align:center;color:#999;">Нет данных</td></tr>';
             return;
         }
         let html = '';
@@ -1602,14 +1690,13 @@ function clearAllData() {
     }
 }
 
-// === ЭКСПОРТ ДЛЯ РОДИТЕЛЕЙ ===
 function exportForParents() {
     try {
         const data = loadData();
         const children = data.children || [];
         const transactions = data.transactions || [];
         const funds = data.funds || ['Общий сбор'];
-        const fees = data.fees || []; // Добавляем взносы
+        const fees = data.fees || [];
         
         let balance = 0;
         transactions.forEach(t => {
@@ -1632,10 +1719,11 @@ function exportForParents() {
             totalIncome: totalIncome,
             totalExpense: totalExpense,
             funds: funds,
-            fees: fees, // Добавляем взносы
+            fees: fees,
             children: children.map(child => ({
                 id: child.id,
                 name: child.name,
+                birthdate: child.birthdate || null,
                 parents: child.parents.map(p => p.name)
             })),
             transactions: transactions.map(t => {
@@ -1678,8 +1766,6 @@ function exportForParents() {
         alert('Ошибка: ' + err.message);
     }
 }
-
-// === ФУНКЦИИ ДЛЯ РЕДАКТИРОВАНИЯ И УДАЛЕНИЯ ===
 
 function deleteTransaction(id) {
     try {
@@ -1830,7 +1916,6 @@ document.addEventListener('DOMContentLoaded', function() {
         refreshUI();
         setDefaultDates();
 
-        // === ВКЛАДКИ ===
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 try {
@@ -1849,7 +1934,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        // === СВЯЗЬ С АВТОРОМ ===
         const contactModal = document.getElementById('contactModal');
         document.getElementById('contactBtn').addEventListener('click', function() {
             contactModal.style.display = 'flex';
@@ -1861,7 +1945,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (e.target === contactModal) contactModal.style.display = 'none';
         });
 
-        // === СМЕНА ПАРОЛЯ ===
         const modal = document.getElementById('changePasswordModal');
         document.getElementById('changePasswordBtn').addEventListener('click', function() {
             modal.style.display = 'flex';
@@ -1890,13 +1973,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // === ЭКСПОРТ ДЛЯ РОДИТЕЛЕЙ ===
         document.getElementById('exportParentBtn').addEventListener('click', exportForParents);
-
-        // === ОЧИСТКА ДАННЫХ ===
         document.getElementById('clearDataBtn').addEventListener('click', clearAllData);
 
-        // === ДОБАВЛЕНИЕ ФОНДА ===
         document.getElementById('addFundBtn').addEventListener('click', function() {
             try {
                 const fundName = document.getElementById('newFundName').value.trim();
@@ -1915,7 +1994,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // === ДОБАВЛЕНИЕ УЧЕНИКА ===
         document.getElementById('addChildBtn').addEventListener('click', function() {
             try {
                 const childName = document.getElementById('childName').value.trim();
@@ -1932,7 +2010,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // === УСТАНОВКА ВЗНОСА ===
         document.getElementById('setFeeBtn').addEventListener('click', function() {
             try {
                 const fund = document.getElementById('feeFundSelect').value;
@@ -1962,7 +2039,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // === ФИЛЬТРЫ ЗАДОЛЖЕННОСТЕЙ ===
         document.getElementById('debtFilterApply').addEventListener('click', function() {
             refreshFeesUI();
         });
@@ -1971,15 +2047,28 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('debtFilterFund').value = '';
             document.getElementById('debtFilterPeriod').value = '';
             document.getElementById('debtFilterMonth').value = '';
+            showOnlyDebtors = false;
+            refreshFeesUI();
+        });
+        
+        document.getElementById('debtFilterAll').addEventListener('click', function() {
+            showOnlyDebtors = false;
+            document.getElementById('debtFilterAll').className = 'btn btn-filter btn-sm';
+            document.getElementById('debtFilterDebtors').className = 'btn btn-outline btn-sm';
+            refreshFeesUI();
+        });
+        
+        document.getElementById('debtFilterDebtors').addEventListener('click', function() {
+            showOnlyDebtors = true;
+            document.getElementById('debtFilterAll').className = 'btn btn-outline btn-sm';
+            document.getElementById('debtFilterDebtors').className = 'btn btn-filter btn-sm';
             refreshFeesUI();
         });
 
-        // === ПРИ ВЫБОРЕ РЕБЁНКА ОБНОВЛЯЕМ РОДИТЕЛЕЙ ===
         document.getElementById('incomeChild').addEventListener('change', function() {
             refreshIncomeParentsUI();
         });
 
-        // === ПОИСК ===
         const searchInput = document.getElementById('searchInput');
         const searchResults = document.getElementById('searchResults');
         
@@ -2030,7 +2119,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // === ПРЕДВАРИТЕЛЬНЫЙ ПРОСМОТР ФАЙЛОВ ДЛЯ РАСХОДОВ ===
         const expenseFilesInput = document.getElementById('expenseFiles');
         const expenseFilesPreview = document.getElementById('expenseFilesPreview');
         let selectedFiles = [];
@@ -2092,7 +2180,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        // === ДОБАВЛЕНИЕ РАСХОДА ===
         document.getElementById('addExpenseBtn').addEventListener('click', function() {
             try {
                 const amount = parseFloat(document.getElementById('expenseAmount').value);
@@ -2133,7 +2220,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // === ДОБАВЛЕНИЕ ПРИХОДА ===
         document.getElementById('addIncomeBtn').addEventListener('click', function() {
             try {
                 const amount = parseFloat(document.getElementById('incomeAmount').value);
@@ -2181,7 +2267,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // === ФИЛЬТР ===
         document.getElementById('filterApply').addEventListener('click', function() {
             try {
                 const from = document.getElementById('filterFrom').value;
@@ -2202,7 +2287,6 @@ document.addEventListener('DOMContentLoaded', function() {
             refreshUI();
         });
 
-        // === ОТЧЁТ ===
         function generateReport(from, to) {
             try {
                 let list = getTransactions();
@@ -2315,7 +2399,6 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('reportResult').innerHTML = '';
         });
 
-        // === ЭКСПОРТ/ИМПОРТ ===
         document.getElementById('exportBtn').addEventListener('click', function() {
             try {
                 const data = loadData();
@@ -2430,7 +2513,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // === ОБРАБОТЧИКИ ДЛЯ МОДАЛЬНОГО ОКНА РЕДАКТИРОВАНИЯ ===
         document.getElementById('editModalClose').addEventListener('click', function() {
             document.getElementById('editModal').style.display = 'none';
         });
@@ -2492,6 +2574,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('❌ Ошибка setDefaultDates:', e);
             }
         }
+        
+        // === АВТОМАТИЧЕСКОЕ ОТКРЫТИЕ ОТЧЁТА ЗА ВСЁ ВРЕМЯ ===
+        setTimeout(function() {
+            generateReport('', '');
+        }, 500);
         
         console.log('✅ Инициализация завершена');
     } catch(err) {
