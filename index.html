@@ -1110,6 +1110,7 @@ function getPeriodDates(period) {
 }
 
 // === ЭКСПОРТ ДНЕЙ РОЖДЕНИЙ В .ICS ===
+// === ЭКСПОРТ ДНЕЙ РОЖДЕНИЙ В .ICS ===
 function exportBirthdays(includeReminders = false) {
     const children = getChildren();
     
@@ -1132,26 +1133,37 @@ function exportBirthdays(includeReminders = false) {
         'CALSCALE:GREGORIAN',
         'METHOD:PUBLISH',
         'X-WR-CALNAME:Дни рождения 1"Е" класса',
-        'X-WR-TIMEZONE:Europe/Moscow'
+        'X-WR-TIMEZONE:Europe/Moscow',
+        'BEGIN:VTIMEZONE',
+        'TZID:Europe/Moscow',
+        'X-LIC-LOCATION:Europe/Moscow',
+        'BEGIN:STANDARD',
+        'TZOFFSETFROM:+0300',
+        'TZOFFSETTO:+0300',
+        'TZNAME:MSK',
+        'DTSTART:19700101T000000',
+        'END:STANDARD',
+        'END:VTIMEZONE'
     ];
+    
+    const currentYear = new Date().getFullYear();
     
     childrenWithBirthday.forEach(child => {
         const birthdate = child.birthdate;
         const parts = birthdate.split('-');
-        const year = parseInt(parts[0]);
         const month = parseInt(parts[1]);
         const day = parseInt(parts[2]);
         
-        const startDate = `${year}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}`;
-        const endDate = `${year + 1}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}`;
+        const dateStr = `${currentYear}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}`;
         
         const uid = `birthday-${child.id}-${Date.now()}@class-treasurer`;
         
         const lines = [
             'BEGIN:VEVENT',
             `UID:${uid}`,
-            `DTSTART;VALUE=DATE:${startDate}`,
-            `DTEND;VALUE=DATE:${endDate}`,
+            `DTSTART;VALUE=DATE:${dateStr}`,
+            `DTEND;VALUE=DATE:${dateStr}`,
+            `RRULE:FREQ=YEARLY`,
             `SUMMARY:🎂 День рождения ${child.name}`,
             `DESCRIPTION:День рождения ученика 1"Е" класса - ${child.name}`,
             'CATEGORIES:День рождения,Класс',
