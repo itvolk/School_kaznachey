@@ -78,6 +78,10 @@
         .btn-filter:hover { background: #5a6268; }
         .btn-contact { background: #9b59b6; color: #fff; }
         .btn-contact:hover { background: #8e44ad; }
+        .btn-birthday { background: #e74c3c; color: #fff; }
+        .btn-birthday:hover { background: #c0392b; }
+        .btn-birthday-outline { background: transparent; border: 1px solid #e74c3c; color: #e74c3c; }
+        .btn-birthday-outline:hover { background: #e74c3c; color: #fff; }
         .hidden { display: none; }
         
         .tabs { 
@@ -456,7 +460,6 @@
             <h1 style="font-size:20px; margin:0;">📊 Казначей 1 "Е" класса</h1>
             <div class="header-actions">
                 <button class="btn btn-contact btn-sm" id="contactBtn">💬 Связь с автором</button>
-                <button class="btn btn-outline btn-sm" id="changePasswordBtn">🔑 Сменить пароль</button>
                 <button class="btn btn-outline btn-sm" id="exportBtn">📥 Экспорт</button>
                 <button class="btn btn-success btn-sm" id="exportParentBtn">📤 Экспорт для родителей</button>
                 <button class="btn btn-outline btn-sm" id="importBtn">📤 Импорт</button>
@@ -478,6 +481,7 @@
             <button class="tab-btn" data-tab="tabAddExpense">➖ Расход</button>
             <button class="tab-btn" data-tab="tabClass">👨‍👩‍👧‍👦 Класс</button>
             <button class="tab-btn" data-tab="tabFees">📅 Взносы</button>
+            <button class="tab-btn" data-tab="tabBirthdays">🎂 Дни рождения</button>
             <button class="tab-btn" data-tab="tabReport">📈 Отчёт</button>
         </div>
 
@@ -724,6 +728,30 @@
             </div>
         </div>
 
+        <!-- Дни рождения -->
+        <div id="tabBirthdays" class="tab-content">
+            <div class="card">
+                <h3>🎂 Дни рождения учеников</h3>
+                <p style="font-size:13px; color:#888; margin-bottom:12px;">
+                    Здесь вы можете посмотреть дни рождения учеников и экспортировать их в календарь.
+                </p>
+                
+                <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+                    <button class="btn btn-birthday" id="exportBirthdaysBtn">📅 Экспорт в календарь (.ics)</button>
+                    <button class="btn btn-birthday-outline" id="exportBirthdaysWithRemindersBtn">🔔 С напоминаниями</button>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>#</th><th>Ученик</th><th>Дата рождения</th><th>Дней до дня рождения</th></tr></thead>
+                        <tbody id="birthdaysTableBody">
+                            <tr><td colspan="4" style="text-align:center;color:#999;">Нет данных о днях рождения</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <!-- Отчёт -->
         <div id="tabReport" class="tab-content">
             <div class="card">
@@ -756,19 +784,6 @@
                 <div id="reportResult" style="margin-top:12px;"></div>
             </div>
         </div>
-    </div>
-</div>
-
-<!-- Модалка смены пароля -->
-<div id="changePasswordModal" class="modal">
-    <div class="modal-content">
-        <span class="modal-close" id="modalClose">&times;</span>
-        <h2>🔑 Смена пароля</h2>
-        <div id="passwordChangeMessage" class="hidden"></div>
-        <div class="form-group"><label>Текущий пароль</label><input type="password" id="oldPassword"></div>
-        <div class="form-group"><label>Новый пароль</label><input type="password" id="newPassword"></div>
-        <div class="form-group"><label>Повторите новый пароль</label><input type="password" id="newPasswordConfirm"></div>
-        <button class="btn" id="changePasswordConfirmBtn">Сменить пароль</button>
     </div>
 </div>
 
@@ -825,7 +840,6 @@ if ('serviceWorker' in navigator) {
 }
 
 // === ДАННЫЕ ===
-const PASSWORD_KEY = 'class_treasurer_password';
 const DATA_KEY = 'class_treasurer_data';
 
 function getDefaultData() {
@@ -1095,6 +1109,99 @@ function getPeriodDates(period) {
     };
 }
 
+// === ЭКСПОРТ ДНЕЙ РОЖДЕНИЙ В .ICS ===
+function exportBirthdays(includeReminders = false) {
+    const children = getChildren();
+    
+    if (children.length === 0) {
+        alert('❌ Нет данных о детях');
+        return;
+    }
+    
+    const childrenWithBirthday = children.filter(c => c.birthdate);
+    
+    if (childrenWithBirthday.length === 0) {
+        alert('❌ Нет данных о днях рождения');
+        return;
+    }
+    
+    let icsContent = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Казначей 1"Е" класса//Дни рождения//RU',
+        'CALSCALE:GREGORIAN',
+        'METHOD:PUBLISH',
+        'X-WR-CALNAME:Дни рождения 1"Е" класса',
+        'X-WR-TIMEZONE:Europe/Moscow'
+    ];
+    
+    childrenWithBirthday.forEach(child => {
+        const birthdate = child.birthdate;
+        const parts = birthdate.split('-');
+        const year = parseInt(parts[0]);
+        const month = parseInt(parts[1]);
+        const day = parseInt(parts[2]);
+        
+        const startDate = `${year}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}`;
+        const endDate = `${year + 1}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}`;
+        
+        const uid = `birthday-${child.id}-${Date.now()}@class-treasurer`;
+        
+        const lines = [
+            'BEGIN:VEVENT',
+            `UID:${uid}`,
+            `DTSTART;VALUE=DATE:${startDate}`,
+            `DTEND;VALUE=DATE:${endDate}`,
+            `SUMMARY:🎂 День рождения ${child.name}`,
+            `DESCRIPTION:День рождения ученика 1"Е" класса - ${child.name}`,
+            'CATEGORIES:День рождения,Класс',
+            'TRANSP:TRANSPARENT',
+            'X-MICROSOFT-CDO-BUSYSTATUS:FREE'
+        ];
+        
+        if (includeReminders) {
+            lines.push('BEGIN:VALARM');
+            lines.push('ACTION:DISPLAY');
+            lines.push(`DESCRIPTION:Напоминание: День рождения ${child.name}`);
+            lines.push('TRIGGER;VALUE=DURATION:-P7D');
+            lines.push('END:VALARM');
+            
+            lines.push('BEGIN:VALARM');
+            lines.push('ACTION:DISPLAY');
+            lines.push(`DESCRIPTION:Напоминание: День рождения ${child.name} через 3 дня`);
+            lines.push('TRIGGER;VALUE=DURATION:-P3D');
+            lines.push('END:VALARM');
+            
+            lines.push('BEGIN:VALARM');
+            lines.push('ACTION:DISPLAY');
+            lines.push(`DESCRIPTION:Напоминание: День рождения ${child.name} завтра! 🎉`);
+            lines.push('TRIGGER;VALUE=DURATION:-P1D');
+            lines.push('END:VALARM');
+        }
+        
+        lines.push('END:VEVENT');
+        icsContent = icsContent.concat(lines);
+    });
+    
+    icsContent.push('END:VCALENDAR');
+    
+    const icsString = icsContent.join('\r\n');
+    const blob = new Blob([icsString], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    const suffix = includeReminders ? '_с_напоминаниями' : '';
+    link.download = `Дни_рождения_1Е_класса${suffix}.ics`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    const count = childrenWithBirthday.length;
+    alert(`✅ Экспортировано ${count} ${count === 1 ? 'ученик' : count < 5 ? 'ученика' : 'учеников'} с днями рождения`);
+}
+
 // === UI ===
 
 function renderTransactions(list) {
@@ -1309,6 +1416,59 @@ function renderRecentExpenses() {
     }
 }
 
+function renderBirthdays() {
+    try {
+        const tbody = document.getElementById('birthdaysTableBody');
+        if (!tbody) return;
+        
+        const children = getChildren();
+        const childrenWithBirthday = children.filter(c => c.birthdate);
+        
+        if (childrenWithBirthday.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#999;">Нет данных о днях рождения</td></tr>';
+            return;
+        }
+        
+        const sorted = [...childrenWithBirthday].sort((a, b) => a.birthdate.localeCompare(b.birthdate));
+        const today = new Date();
+        const currentYear = today.getFullYear();
+        
+        let html = '';
+        sorted.forEach((c, i) => {
+            const parts = c.birthdate.split('-');
+            const month = parseInt(parts[1]);
+            const day = parseInt(parts[2]);
+            
+            const nextBirthday = new Date(currentYear, month - 1, day);
+            if (nextBirthday < today) {
+                nextBirthday.setFullYear(currentYear + 1);
+            }
+            const daysUntil = Math.ceil((nextBirthday - today) / (1000 * 60 * 60 * 24));
+            
+            let daysText = '';
+            if (daysUntil === 0) {
+                daysText = '🎉 СЕГОДНЯ!';
+            } else if (daysUntil === 1) {
+                daysText = 'Завтра! 🎂';
+            } else {
+                daysText = `${daysUntil} дн.`;
+            }
+            
+            const birthdateFormatted = formatDate(c.birthdate);
+            
+            html += `<tr>
+                <td>${i+1}</td>
+                <td><strong>${c.name}</strong></td>
+                <td>${birthdateFormatted}</td>
+                <td>${daysText}</td>
+            </tr>`;
+        });
+        tbody.innerHTML = html;
+    } catch(e) {
+        console.error('❌ Ошибка renderBirthdays:', e);
+    }
+}
+
 function updateBalance(list) {
     try {
         let balance = 0;
@@ -1394,6 +1554,7 @@ function refreshClassUI() {
                     child.birthdate = birthdate;
                     saveData(data);
                     refreshClassUI();
+                    renderBirthdays();
                 }
             });
         });
@@ -1451,6 +1612,7 @@ function refreshClassUI() {
                         refreshClassUI();
                         refreshIncomeParentsUI();
                         refreshFeesUI();
+                        renderBirthdays();
                     }
                 } catch(err) {
                     console.error('❌ Ошибка при удалении ученика:', err);
@@ -1604,6 +1766,7 @@ function refreshUI() {
         refreshIncomeParentsUI();
         refreshFundsUI();
         refreshFeesUI();
+        renderBirthdays();
         console.log('✅ UI обновлён');
     } catch(e) {
         console.error('❌ Ошибка refreshUI:', e);
@@ -1663,21 +1826,6 @@ function performSearch(query) {
     }
 }
 
-function changePassword(oldPwd, newPwd, confirmPwd) {
-    try {
-        const stored = localStorage.getItem(PASSWORD_KEY);
-        if (!stored) return { success: false, message: 'Пароль не установлен' };
-        if (stored !== oldPwd) return { success: false, message: 'Неверный текущий пароль' };
-        if (newPwd.length < 4) return { success: false, message: 'Минимум 4 символа' };
-        if (newPwd !== confirmPwd) return { success: false, message: 'Пароли не совпадают' };
-        localStorage.setItem(PASSWORD_KEY, newPwd);
-        return { success: true, message: 'Пароль изменён' };
-    } catch(e) {
-        console.error('❌ Ошибка changePassword:', e);
-        return { success: false, message: 'Ошибка: ' + e.message };
-    }
-}
-
 function clearAllData() {
     if (confirm('⚠️ ВНИМАНИЕ! Это действие удалит ВСЕ данные: учеников, взносы, операции, фонды. Продолжить?')) {
         if (confirm('Вы уверены? Данные будут удалены безвозвратно!')) {
@@ -1689,7 +1837,6 @@ function clearAllData() {
         }
     }
 }
-
 
 function exportForParents() {
     try {
@@ -1753,7 +1900,7 @@ function exportForParents() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'parents.json'; // ИЗМЕНЕНО: всегда parents.json
+        a.download = 'parents.json';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -1897,6 +2044,12 @@ function openEditModal(id) {
     }
 }
 
+function formatDate(dateStr) {
+    if (!dateStr) return '—';
+    const parts = dateStr.split('-');
+    return `${parts[2]}.${parts[1]}.${parts[0]}`;
+}
+
 // === ИНИЦИАЛИЗАЦИЯ ===
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -1905,11 +2058,6 @@ document.addEventListener('DOMContentLoaded', function() {
     try {
         if (!localStorage.getItem(DATA_KEY)) {
             saveData(getDefaultData());
-        }
-        
-        if (!localStorage.getItem(PASSWORD_KEY)) {
-            localStorage.setItem(PASSWORD_KEY, 'admin123');
-            console.log('🔑 Пароль по умолчанию: admin123');
         }
         
         refreshUI();
@@ -1927,6 +2075,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (tabId === 'tabClass') refreshClassUI();
                     if (tabId === 'tabAddIncome') { refreshIncomeParentsUI(); renderRecentIncomes(); }
                     if (tabId === 'tabAddExpense') { renderRecentExpenses(); }
+                    if (tabId === 'tabBirthdays') { renderBirthdays(); }
                 } catch(err) {
                     console.error('❌ Ошибка при переключении вкладки:', err);
                 }
@@ -1944,36 +2093,17 @@ document.addEventListener('DOMContentLoaded', function() {
             if (e.target === contactModal) contactModal.style.display = 'none';
         });
 
-        const modal = document.getElementById('changePasswordModal');
-        document.getElementById('changePasswordBtn').addEventListener('click', function() {
-            modal.style.display = 'flex';
-            document.getElementById('oldPassword').value = '';
-            document.getElementById('newPassword').value = '';
-            document.getElementById('newPasswordConfirm').value = '';
-            document.getElementById('passwordChangeMessage').classList.add('hidden');
-        });
-        document.getElementById('modalClose').addEventListener('click', function() { modal.style.display = 'none'; });
-        window.addEventListener('click', function(e) { if (e.target === modal) modal.style.display = 'none'; });
-        document.getElementById('changePasswordConfirmBtn').addEventListener('click', function() {
-            try {
-                const result = changePassword(
-                    document.getElementById('oldPassword').value.trim(),
-                    document.getElementById('newPassword').value.trim(),
-                    document.getElementById('newPasswordConfirm').value.trim()
-                );
-                const msg = document.getElementById('passwordChangeMessage');
-                msg.classList.remove('hidden');
-                msg.className = result.success ? 'alert alert-success' : 'alert alert-danger';
-                msg.textContent = result.message;
-                if (result.success) setTimeout(() => modal.style.display = 'none', 1500);
-            } catch(err) {
-                console.error('❌ Ошибка смены пароля:', err);
-                alert('Ошибка: ' + err.message);
-            }
-        });
-
         document.getElementById('exportParentBtn').addEventListener('click', exportForParents);
         document.getElementById('clearDataBtn').addEventListener('click', clearAllData);
+        
+        // === ЭКСПОРТ ДНЕЙ РОЖДЕНИЙ ===
+        document.getElementById('exportBirthdaysBtn').addEventListener('click', function() {
+            exportBirthdays(false);
+        });
+        
+        document.getElementById('exportBirthdaysWithRemindersBtn').addEventListener('click', function() {
+            exportBirthdays(true);
+        });
 
         document.getElementById('addFundBtn').addEventListener('click', function() {
             try {
