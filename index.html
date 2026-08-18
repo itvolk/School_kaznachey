@@ -818,6 +818,110 @@
 </div>
 
 <script>
+// === АВТОМАТИЧЕСКАЯ ПРОВЕРКА ОБНОВЛЕНИЙ SERVICE WORKER ===
+function checkForServiceWorkerUpdate() {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.ready.then(function(registration) {
+            // Проверяем обновления при загрузке
+            registration.update();
+            
+            // Проверяем каждые 5 минут
+            setInterval(function() {
+                registration.update();
+            }, 300000);
+        });
+        
+        // Слушаем сообщения от Service Worker
+        navigator.serviceWorker.addEventListener('message', function(event) {
+            if (event.data === 'updateAvailable') {
+                console.log('🔄 Доступна новая версия!');
+                // Показываем уведомление
+                showUpdateNotification();
+            }
+        });
+    }
+}
+
+function showUpdateNotification() {
+    // Проверяем, не показывали ли уже
+    if (document.querySelector('.update-banner')) return;
+    
+    const banner = document.createElement('div');
+    banner.className = 'update-banner';
+    banner.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 9999;
+        background: #2c3e50;
+        color: #fff;
+        padding: 16px 24px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        max-width: 90%;
+        width: 400px;
+        text-align: center;
+        font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+        animation: slideUp 0.3s ease-out;
+    `;
+    
+    banner.innerHTML = `
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+            <span style="font-size:24px;">🔄</span>
+            <div style="flex:1; text-align:left;">
+                <div style="font-weight:600; font-size:15px;">Доступна новая версия</div>
+                <div style="font-size:12px; color:#b0bec5; margin-top:4px;">Обновите страницу для загрузки</div>
+            </div>
+        </div>
+        <div style="display:flex; gap:8px; margin-top:8px;">
+            <button onclick="location.reload(true);" 
+                    style="flex:1; background:#2ecc71; color:#fff; border:none; padding:8px 16px; border-radius:6px; font-weight:600; cursor:pointer; font-size:14px;">
+                ✅ Обновить сейчас
+            </button>
+            <button onclick="this.parentElement.parentElement.remove();" 
+                    style="flex:1; background:#555; color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-size:14px;">
+                ⏰ Позже
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(banner);
+    
+    // Стиль анимации
+    if (!document.querySelector('#updateBannerStyle')) {
+        const style = document.createElement('style');
+        style.id = 'updateBannerStyle';
+        style.textContent = `
+            @keyframes slideUp {
+                from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+                to { opacity: 1; transform: translateX(-50%) translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+// === ОБНОВЛЕНИЕ SERVICE WORKER ПРИ ЗАГРУЗКЕ ===
+if ('serviceWorker' in navigator) {
+    // Проверяем обновления каждые 5 минут
+    setInterval(function() {
+        navigator.serviceWorker.ready.then(function(registration) {
+            registration.update();
+        });
+    }, 300000); // 5 минут
+    
+    // Проверяем при возвращении на страницу (visibility change)
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            navigator.serviceWorker.ready.then(function(registration) {
+                registration.update();
+            });
+        }
+    });
+}
+
+
 window.onerror = function(message, source, lineno, colno, error) {
     console.error('❌ ГЛОБАЛЬНАЯ ОШИБКА:', message);
     alert('⚠️ Ошибка: ' + message + '\n\nСмотрите консоль (F12) для деталей.');
@@ -1110,7 +1214,6 @@ function getPeriodDates(period) {
 }
 
 // === ЭКСПОРТ ДНЕЙ РОЖДЕНИЙ В .ICS ===
-// === ЭКСПОРТ ДНЕЙ РОЖДЕНИЙ В .ICS ===
 function exportBirthdays(includeReminders = false) {
     const children = getChildren();
     
@@ -1126,6 +1229,7 @@ function exportBirthdays(includeReminders = false) {
         return;
     }
     
+    // Формируем ICS файл
     let icsContent = [
         'BEGIN:VCALENDAR',
         'VERSION:2.0',
@@ -1133,18 +1237,20 @@ function exportBirthdays(includeReminders = false) {
         'CALSCALE:GREGORIAN',
         'METHOD:PUBLISH',
         'X-WR-CALNAME:Дни рождения 1"Е" класса',
-        'X-WR-TIMEZONE:Europe/Moscow',
-        'BEGIN:VTIMEZONE',
-        'TZID:Europe/Moscow',
-        'X-LIC-LOCATION:Europe/Moscow',
-        'BEGIN:STANDARD',
-        'TZOFFSETFROM:+0300',
-        'TZOFFSETTO:+0300',
-        'TZNAME:MSK',
-        'DTSTART:19700101T000000',
-        'END:STANDARD',
-        'END:VTIMEZONE'
+        'X-WR-TIMEZONE:Europe/Moscow'
     ];
+    
+    // Добавляем информацию о часовом поясе
+    icsContent.push('BEGIN:VTIMEZONE');
+    icsContent.push('TZID:Europe/Moscow');
+    icsContent.push('X-LIC-LOCATION:Europe/Moscow');
+    icsContent.push('BEGIN:STANDARD');
+    icsContent.push('TZOFFSETFROM:+0300');
+    icsContent.push('TZOFFSETTO:+0300');
+    icsContent.push('TZNAME:MSK');
+    icsContent.push('DTSTART:19700101T000000');
+    icsContent.push('END:STANDARD');
+    icsContent.push('END:VTIMEZONE');
     
     const currentYear = new Date().getFullYear();
     
@@ -1154,10 +1260,12 @@ function exportBirthdays(includeReminders = false) {
         const month = parseInt(parts[1]);
         const day = parseInt(parts[2]);
         
+        // Формируем дату в текущем году
         const dateStr = `${currentYear}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}`;
         
         const uid = `birthday-${child.id}-${Date.now()}@class-treasurer`;
         
+        // Основное событие
         const lines = [
             'BEGIN:VEVENT',
             `UID:${uid}`,
@@ -1171,23 +1279,35 @@ function exportBirthdays(includeReminders = false) {
             'X-MICROSOFT-CDO-BUSYSTATUS:FREE'
         ];
         
+        // Добавляем напоминания если нужно
         if (includeReminders) {
+            // Google Календарь поддерживает напоминания через X-GOOGLE-* или стандартные VALARM
+            // Добавляем напоминание за 7 дней
             lines.push('BEGIN:VALARM');
             lines.push('ACTION:DISPLAY');
-            lines.push(`DESCRIPTION:Напоминание: День рождения ${child.name}`);
+            lines.push(`DESCRIPTION:Напоминание: День рождения ${child.name} через 7 дней`);
             lines.push('TRIGGER;VALUE=DURATION:-P7D');
             lines.push('END:VALARM');
             
+            // Добавляем напоминание за 3 дня
             lines.push('BEGIN:VALARM');
             lines.push('ACTION:DISPLAY');
             lines.push(`DESCRIPTION:Напоминание: День рождения ${child.name} через 3 дня`);
             lines.push('TRIGGER;VALUE=DURATION:-P3D');
             lines.push('END:VALARM');
             
+            // Добавляем напоминание за 1 день
             lines.push('BEGIN:VALARM');
             lines.push('ACTION:DISPLAY');
             lines.push(`DESCRIPTION:Напоминание: День рождения ${child.name} завтра! 🎉`);
             lines.push('TRIGGER;VALUE=DURATION:-P1D');
+            lines.push('END:VALARM');
+            
+            // Добавляем напоминание в день события
+            lines.push('BEGIN:VALARM');
+            lines.push('ACTION:DISPLAY');
+            lines.push(`DESCRIPTION:🎂 Сегодня день рождения ${child.name}! Поздравьте!`);
+            lines.push('TRIGGER;VALUE=DURATION:-PT0H');
             lines.push('END:VALARM');
         }
         
