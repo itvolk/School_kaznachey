@@ -82,6 +82,9 @@
         .btn-birthday:hover { background: #c0392b; }
         .btn-birthday-outline { background: transparent; border: 1px solid #e74c3c; color: #e74c3c; }
         .btn-birthday-outline:hover { background: #e74c3c; color: #fff; }
+        .btn-debtors { background: #e74c3c; color: #fff; }
+        .btn-debtors:hover { background: #c0392b; }
+        .btn-debtors.active { background: #c0392b; box-shadow: 0 0 0 2px #e74c3c; }
         .hidden { display: none; }
         
         .tabs { 
@@ -105,6 +108,8 @@
             flex: 0 0 auto;
         }
         .tab-btn.active { background: #4f8cf7; color: #fff; }
+        .tab-btn.debtor-tab { background: #f8d7da; color: #721c24; }
+        .tab-btn.debtor-tab.active { background: #e74c3c; color: #fff; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         
@@ -139,92 +144,14 @@
         .badge.income { background: #d4edda; color: #155724; }
         .badge.expense { background: #f8d7da; color: #721c24; }
         .badge.debt { background: #fff3cd; color: #856404; }
+        .badge.debt-high { background: #f8d7da; color: #721c24; }
+        .badge.debt-medium { background: #fff3cd; color: #856404; }
+        .badge.debt-low { background: #d1ecf1; color: #0c5460; }
+        .badge.debt-zero { background: #d4edda; color: #155724; }
         .badge.fund { background: #d1ecf1; color: #0c5460; }
         .badge.period { background: #e8daef; color: #6c3483; }
         .badge.birthday { background: #fce4ec; color: #c62828; }
         
-        .delete-btn { background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 16px; padding: 4px 6px; touch-action: manipulation; }
-        .delete-btn:hover { color: #c0392b; }
-        .session-info { font-size: 12px; color: #888; margin-right: 8px; }
-        
-        .parents-list span { 
-            background: #e9ecf0; 
-            padding: 2px 8px; 
-            border-radius: 12px; 
-            margin-right: 4px; 
-            display: inline-block; 
-            margin-bottom: 3px;
-            font-size: 12px;
-        }
-        .parents-list .remove-parent {
-            cursor: pointer;
-            color: #e74c3c;
-            margin-left: 4px;
-            font-weight: bold;
-            touch-action: manipulation;
-        }
-        .parents-list .remove-parent:hover { color: #c0392b; }
-        
-        .modal { 
-            display: none; 
-            position: fixed; 
-            z-index: 1000; 
-            left: 0; 
-            top: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: rgba(0,0,0,0.5); 
-            align-items: center;
-            justify-content: center;
-        }
-        .modal-content { 
-            background: #fff; 
-            margin: 16px; 
-            padding: 24px; 
-            border-radius: 16px; 
-            max-width: 420px; 
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-        }
-        .modal-close { float: right; font-size: 24px; cursor: pointer; color: #888; touch-action: manipulation; padding: 0 8px; }
-        .modal-close:hover { color: #000; }
-        
-        .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 12px; font-size: 14px; }
-        .alert-danger { background: #f8d7da; color: #721c24; }
-        .alert-success { background: #d4edda; color: #155724; }
-        
-        .add-parent-row { display: flex; gap: 4px; align-items: center; margin-top: 4px; flex-wrap: wrap; }
-        .add-parent-row input { flex: 1; padding: 6px 8px; font-size: 12px; border: 1px solid #ccc; border-radius: 4px; min-width: 80px; }
-        
-        .search-container { position: relative; }
-        .search-results {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: #fff;
-            border: 1px solid #d0d7de;
-            border-radius: 8px;
-            max-height: 180px;
-            overflow-y: auto;
-            z-index: 100;
-            display: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        .search-results .result-item {
-            padding: 8px 12px;
-            cursor: pointer;
-            border-bottom: 1px solid #f0f0f0;
-            font-size: 13px;
-            touch-action: manipulation;
-        }
-        .search-results .result-item:active { background: #e8edf5; }
-        .search-results .result-item:hover { background: #f0f4ff; }
-        .search-results .result-item .highlight { font-weight: 600; color: #4f8cf7; }
-        .search-results .result-item .sub-text { font-size: 11px; color: #888; margin-left: 8px; }
-
         .fund-tag {
             display: inline-block;
             background: #d1ecf1;
@@ -244,6 +171,62 @@
         }
         .fund-tag .remove-fund:hover { color: #c0392b; }
         .funds-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+
+        .debtor-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #e9ecf0;
+            margin-bottom: 8px;
+            transition: 0.2s;
+        }
+        .debtor-item:hover {
+            border-color: #d0d7de;
+        }
+        .debtor-item .debtor-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .debtor-item .debtor-amount {
+            font-weight: 700;
+            font-size: 18px;
+        }
+        .debtor-item .debtor-details {
+            font-size: 12px;
+            color: #888;
+        }
+        .debtor-item .debtor-badge {
+            margin-left: 8px;
+        }
+        .debtor-item .debtor-amount.high { color: #e74c3c; }
+        .debtor-item .debtor-amount.medium { color: #f39c12; }
+        .debtor-item .debtor-amount.low { color: #2980b9; }
+        .debtor-item .debtor-amount.zero { color: #27ae60; }
+
+        .debtor-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .debtor-summary .debt-item {
+            background: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #e9ecf0;
+            text-align: center;
+        }
+        .debtor-summary .debt-item .amount {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .debtor-summary .debt-item .label {
+            font-size: 12px;
+            color: #888;
+        }
 
         .filter-section {
             background: #f8f9fc;
@@ -347,6 +330,112 @@
             color: #555;
         }
 
+        .modal { 
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.5); 
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content { 
+            background: #fff; 
+            margin: 16px; 
+            padding: 24px; 
+            border-radius: 16px; 
+            max-width: 420px; 
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        .modal-close { float: right; font-size: 24px; cursor: pointer; color: #888; touch-action: manipulation; padding: 0 8px; }
+        .modal-close:hover { color: #000; }
+
+        .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 12px; font-size: 14px; }
+        .alert-danger { background: #f8d7da; color: #721c24; }
+        .alert-success { background: #d4edda; color: #155724; }
+
+        .add-parent-row { display: flex; gap: 4px; align-items: center; margin-top: 4px; flex-wrap: wrap; }
+        .add-parent-row input { flex: 1; padding: 6px 8px; font-size: 12px; border: 1px solid #ccc; border-radius: 4px; min-width: 80px; }
+        
+        .search-container { position: relative; }
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid #d0d7de;
+            border-radius: 8px;
+            max-height: 180px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .search-results .result-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+            touch-action: manipulation;
+        }
+        .search-results .result-item:active { background: #e8edf5; }
+        .search-results .result-item:hover { background: #f0f4ff; }
+        .search-results .result-item .highlight { font-weight: 600; color: #4f8cf7; }
+        .search-results .result-item .sub-text { font-size: 11px; color: #888; margin-left: 8px; }
+
+        .parents-list span { 
+            background: #e9ecf0; 
+            padding: 2px 8px; 
+            border-radius: 12px; 
+            margin-right: 4px; 
+            display: inline-block; 
+            margin-bottom: 3px;
+            font-size: 12px;
+        }
+        .parents-list .remove-parent {
+            cursor: pointer;
+            color: #e74c3c;
+            margin-left: 4px;
+            font-weight: bold;
+            touch-action: manipulation;
+        }
+        .parents-list .remove-parent:hover { color: #c0392b; }
+
+        .report-fund-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 12px;
+            margin: 12px 0;
+        }
+        .report-fund-summary .fund-card {
+            background: #fff;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid #e9ecf0;
+        }
+        .report-fund-summary .fund-card .fund-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: #2c3e50;
+        }
+        .report-fund-summary .fund-card .fund-total {
+            font-size: 18px;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+        .report-fund-summary .fund-card .fund-detail {
+            font-size: 12px;
+            color: #888;
+            margin-top: 2px;
+        }
+
         @media (max-width: 768px) {
             body { padding: 8px; }
             .container { padding: 12px; border-radius: 12px; }
@@ -408,6 +497,15 @@
             .birthdate-input { width: 100px; font-size: 11px; }
             
             .debt-filter-row { flex-direction: column; align-items: stretch; }
+            .debtor-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
+            }
+            .debtor-item .debtor-amount {
+                align-self: flex-start;
+            }
+            .report-fund-summary { grid-template-columns: 1fr 1fr; }
         }
 
         @media (max-width: 480px) {
@@ -434,6 +532,7 @@
                 font-size: 9px !important;
             }
             .birthdate-input { width: 80px; font-size: 10px; }
+            .report-fund-summary { grid-template-columns: 1fr; }
         }
 
         @media (max-width: 360px) {
@@ -481,6 +580,7 @@
             <button class="tab-btn" data-tab="tabAddExpense">➖ Расход</button>
             <button class="tab-btn" data-tab="tabClass">👨‍👩‍👧‍👦 Класс</button>
             <button class="tab-btn" data-tab="tabFees">📅 Взносы</button>
+            <button class="tab-btn debtor-tab" data-tab="tabDebtors">🔴 Должники</button>
             <button class="tab-btn" data-tab="tabBirthdays">🎂 Дни рождения</button>
             <button class="tab-btn" data-tab="tabReport">📈 Отчёт</button>
         </div>
@@ -572,10 +672,9 @@
                         <input type="number" id="expenseAmount" step="0.01" placeholder="0.00">
                     </div>
                     <div class="form-group">
-                        <label>Категория</label>
+                        <label>Категория (из фондов)</label>
                         <select id="expenseCategory">
-                            <option>Канцтовары</option><option>Подарки</option>
-                            <option>Мероприятия</option><option>Хознужды</option><option>Прочее</option>
+                            <option value="">Выберите категорию</option>
                         </select>
                     </div>
                 </div>
@@ -728,6 +827,37 @@
             </div>
         </div>
 
+        <!-- ДОЛЖНИКИ -->
+        <div id="tabDebtors" class="tab-content">
+            <div class="card">
+                <h3>🔴 Должники</h3>
+                <p style="font-size:13px; color:#888; margin-bottom:12px;">
+                    Список учеников с задолженностями, отсортированный по сумме долга (от большего к меньшему).
+                </p>
+                
+                <div class="filter-section">
+                    <div class="flex-row">
+                        <div class="form-group">
+                            <label>Фонд</label>
+                            <select id="debtorFilterFund">
+                                <option value="all">Все фонды</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Минимальный долг</label>
+                            <input type="number" id="debtorFilterMin" placeholder="0" step="1" min="0" style="width:100%;">
+                        </div>
+                        <button class="btn btn-filter" id="debtorFilterApply">🔍 Применить</button>
+                        <button class="btn btn-outline" id="debtorFilterClear">✕ Сбросить</button>
+                    </div>
+                </div>
+
+                <div id="debtorSummary" class="debtor-summary" style="margin-bottom:12px;"></div>
+                
+                <div id="debtorList"></div>
+            </div>
+        </div>
+
         <!-- Дни рождения -->
         <div id="tabBirthdays" class="tab-content">
             <div class="card">
@@ -781,6 +911,13 @@
                     <button class="btn btn-outline" id="reportClear">🗑️ Очистить</button>
                 </div>
 
+                <!-- Общая статистика -->
+                <div id="reportSummary" style="margin-top:12px;"></div>
+
+                <!-- Статистика по фондам -->
+                <div id="reportFundsSummary" style="margin-top:12px;"></div>
+
+                <!-- Детальный отчёт -->
                 <div id="reportResult" style="margin-top:12px;"></div>
             </div>
         </div>
@@ -818,110 +955,6 @@
 </div>
 
 <script>
-// === АВТОМАТИЧЕСКАЯ ПРОВЕРКА ОБНОВЛЕНИЙ SERVICE WORKER ===
-function checkForServiceWorkerUpdate() {
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.ready.then(function(registration) {
-            // Проверяем обновления при загрузке
-            registration.update();
-            
-            // Проверяем каждые 5 минут
-            setInterval(function() {
-                registration.update();
-            }, 300000);
-        });
-        
-        // Слушаем сообщения от Service Worker
-        navigator.serviceWorker.addEventListener('message', function(event) {
-            if (event.data === 'updateAvailable') {
-                console.log('🔄 Доступна новая версия!');
-                // Показываем уведомление
-                showUpdateNotification();
-            }
-        });
-    }
-}
-
-function showUpdateNotification() {
-    // Проверяем, не показывали ли уже
-    if (document.querySelector('.update-banner')) return;
-    
-    const banner = document.createElement('div');
-    banner.className = 'update-banner';
-    banner.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 9999;
-        background: #2c3e50;
-        color: #fff;
-        padding: 16px 24px;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        max-width: 90%;
-        width: 400px;
-        text-align: center;
-        font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
-        animation: slideUp 0.3s ease-out;
-    `;
-    
-    banner.innerHTML = `
-        <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
-            <span style="font-size:24px;">🔄</span>
-            <div style="flex:1; text-align:left;">
-                <div style="font-weight:600; font-size:15px;">Доступна новая версия</div>
-                <div style="font-size:12px; color:#b0bec5; margin-top:4px;">Обновите страницу для загрузки</div>
-            </div>
-        </div>
-        <div style="display:flex; gap:8px; margin-top:8px;">
-            <button onclick="location.reload(true);" 
-                    style="flex:1; background:#2ecc71; color:#fff; border:none; padding:8px 16px; border-radius:6px; font-weight:600; cursor:pointer; font-size:14px;">
-                ✅ Обновить сейчас
-            </button>
-            <button onclick="this.parentElement.parentElement.remove();" 
-                    style="flex:1; background:#555; color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-size:14px;">
-                ⏰ Позже
-            </button>
-        </div>
-    `;
-    
-    document.body.appendChild(banner);
-    
-    // Стиль анимации
-    if (!document.querySelector('#updateBannerStyle')) {
-        const style = document.createElement('style');
-        style.id = 'updateBannerStyle';
-        style.textContent = `
-            @keyframes slideUp {
-                from { opacity: 0; transform: translateX(-50%) translateY(20px); }
-                to { opacity: 1; transform: translateX(-50%) translateY(0); }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-}
-
-// === ОБНОВЛЕНИЕ SERVICE WORKER ПРИ ЗАГРУЗКЕ ===
-if ('serviceWorker' in navigator) {
-    // Проверяем обновления каждые 5 минут
-    setInterval(function() {
-        navigator.serviceWorker.ready.then(function(registration) {
-            registration.update();
-        });
-    }, 300000); // 5 минут
-    
-    // Проверяем при возвращении на страницу (visibility change)
-    document.addEventListener('visibilitychange', function() {
-        if (!document.hidden) {
-            navigator.serviceWorker.ready.then(function(registration) {
-                registration.update();
-            });
-        }
-    });
-}
-
-
 window.onerror = function(message, source, lineno, colno, error) {
     console.error('❌ ГЛОБАЛЬНАЯ ОШИБКА:', message);
     alert('⚠️ Ошибка: ' + message + '\n\nСмотрите консоль (F12) для деталей.');
@@ -1177,6 +1210,75 @@ function calculateDebts(month, filterName, filterFund, filterPeriod, showOnlyDeb
     }
 }
 
+// === РАСЧЁТ ДОЛЖНИКОВ (СВОДНЫЙ ПО УЧЕНИКАМ) ===
+function calculateDebtors(fundFilter, minDebt) {
+    const children = getChildren();
+    const transactions = getTransactions();
+    const funds = getFunds();
+    const debtors = [];
+    
+    if (children.length === 0 || funds.length === 0) return debtors;
+    
+    const allFees = getFees();
+    if (allFees.length === 0) return debtors;
+    
+    let fees = allFees;
+    if (fundFilter && fundFilter !== 'all') {
+        fees = fees.filter(f => f.fund === fundFilter);
+    }
+    
+    if (fees.length === 0) return debtors;
+    
+    children.forEach(child => {
+        let totalDebt = 0;
+        let totalFee = 0;
+        let totalPaid = 0;
+        let fundDetails = [];
+        
+        fees.forEach(fee => {
+            const month = fee.month;
+            const fund = fee.fund;
+            const feeAmount = fee.amount;
+            
+            // Используем childId для поиска, как в calculateDebts
+            const paid = transactions
+                .filter(t => t.type === 'income' && 
+                    t.childId === child.id && 
+                    t.date && t.date.startsWith(month) && 
+                    t.fund === fund)
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const debt = feeAmount - paid;
+            if (debt > 0) {
+                totalDebt += debt;
+                totalFee += feeAmount;
+                totalPaid += paid;
+                fundDetails.push({ fund, month, fee: feeAmount, paid, debt });
+            }
+        });
+        
+        if (totalDebt > 0) {
+            debtors.push({
+                childName: child.name,
+                childId: child.id,
+                totalDebt: totalDebt,
+                totalFee: totalFee,
+                totalPaid: totalPaid,
+                fundDetails: fundDetails
+            });
+        }
+    });
+    
+    debtors.sort((a, b) => b.totalDebt - a.totalDebt);
+    
+    if (minDebt && minDebt > 0) {
+        return debtors.filter(d => d.totalDebt >= minDebt);
+    }
+    
+    return debtors;
+}
+
+
 function getPeriodDates(period) {
     const now = new Date();
     const year = now.getFullYear();
@@ -1229,7 +1331,6 @@ function exportBirthdays(includeReminders = false) {
         return;
     }
     
-    // Формируем ICS файл
     let icsContent = [
         'BEGIN:VCALENDAR',
         'VERSION:2.0',
@@ -1240,7 +1341,6 @@ function exportBirthdays(includeReminders = false) {
         'X-WR-TIMEZONE:Europe/Moscow'
     ];
     
-    // Добавляем информацию о часовом поясе
     icsContent.push('BEGIN:VTIMEZONE');
     icsContent.push('TZID:Europe/Moscow');
     icsContent.push('X-LIC-LOCATION:Europe/Moscow');
@@ -1260,12 +1360,10 @@ function exportBirthdays(includeReminders = false) {
         const month = parseInt(parts[1]);
         const day = parseInt(parts[2]);
         
-        // Формируем дату в текущем году
         const dateStr = `${currentYear}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}`;
         
         const uid = `birthday-${child.id}-${Date.now()}@class-treasurer`;
         
-        // Основное событие
         const lines = [
             'BEGIN:VEVENT',
             `UID:${uid}`,
@@ -1279,31 +1377,25 @@ function exportBirthdays(includeReminders = false) {
             'X-MICROSOFT-CDO-BUSYSTATUS:FREE'
         ];
         
-        // Добавляем напоминания если нужно
         if (includeReminders) {
-            // Google Календарь поддерживает напоминания через X-GOOGLE-* или стандартные VALARM
-            // Добавляем напоминание за 7 дней
             lines.push('BEGIN:VALARM');
             lines.push('ACTION:DISPLAY');
             lines.push(`DESCRIPTION:Напоминание: День рождения ${child.name} через 7 дней`);
             lines.push('TRIGGER;VALUE=DURATION:-P7D');
             lines.push('END:VALARM');
             
-            // Добавляем напоминание за 3 дня
             lines.push('BEGIN:VALARM');
             lines.push('ACTION:DISPLAY');
             lines.push(`DESCRIPTION:Напоминание: День рождения ${child.name} через 3 дня`);
             lines.push('TRIGGER;VALUE=DURATION:-P3D');
             lines.push('END:VALARM');
             
-            // Добавляем напоминание за 1 день
             lines.push('BEGIN:VALARM');
             lines.push('ACTION:DISPLAY');
             lines.push(`DESCRIPTION:Напоминание: День рождения ${child.name} завтра! 🎉`);
             lines.push('TRIGGER;VALUE=DURATION:-P1D');
             lines.push('END:VALARM');
             
-            // Добавляем напоминание в день события
             lines.push('BEGIN:VALARM');
             lines.push('ACTION:DISPLAY');
             lines.push(`DESCRIPTION:🎂 Сегодня день рождения ${child.name}! Поздравьте!`);
@@ -1332,6 +1424,32 @@ function exportBirthdays(includeReminders = false) {
     
     const count = childrenWithBirthday.length;
     alert(`✅ Экспортировано ${count} ${count === 1 ? 'ученик' : count < 5 ? 'ученика' : 'учеников'} с днями рождения`);
+}
+
+// === ПОПУЛЯЦИЯ КАТЕГОРИЙ РАСХОДОВ ИЗ ФОНДОВ ===
+function populateExpenseCategories() {
+    try {
+        const select = document.getElementById('expenseCategory');
+        if (!select) return;
+        
+        const funds = getFunds();
+        const currentValue = select.value;
+        
+        select.innerHTML = '<option value="">Выберите категорию</option>';
+        funds.forEach(f => {
+            const opt = document.createElement('option');
+            opt.value = f;
+            opt.textContent = f;
+            select.appendChild(opt);
+        });
+        
+        // Восстанавливаем выбранное значение, если оно есть
+        if (currentValue && funds.includes(currentValue)) {
+            select.value = currentValue;
+        }
+    } catch(e) {
+        console.error('❌ Ошибка populateExpenseCategories:', e);
+    }
 }
 
 // === UI ===
@@ -1537,7 +1655,7 @@ function renderRecentExpenses() {
             html += `<tr>
                 <td>${t.date}</td>
                 <td>${t.amount.toFixed(2)} ₽</td>
-                <td><span class="badge expense">${t.category || 'без категории'}</span></td>
+                <td><span class="fund-tag">${t.category || 'без категории'}</span></td>
                 <td>${t.description || ''}</td>
                 <td>${fileHtml}</td>
             </tr>`;
@@ -1745,6 +1863,7 @@ function refreshClassUI() {
                         refreshIncomeParentsUI();
                         refreshFeesUI();
                         renderBirthdays();
+                        renderDebtors();
                     }
                 } catch(err) {
                     console.error('❌ Ошибка при удалении ученика:', err);
@@ -1788,6 +1907,7 @@ function refreshFundsUI() {
         const fundsList = document.getElementById('fundsList');
         const select = document.getElementById('feeFundSelect');
         const filterSelect = document.getElementById('debtFilterFund');
+        const debtorFilterSelect = document.getElementById('debtorFilterFund');
         
         if (funds.length === 0) {
             fundsList.innerHTML = '<span style="color:#999;">Нет фондов</span>';
@@ -1805,6 +1925,7 @@ function refreshFundsUI() {
                         removeFund(fund);
                         refreshFundsUI();
                         refreshFeesUI();
+                        renderDebtors();
                     }
                 });
             });
@@ -1812,6 +1933,7 @@ function refreshFundsUI() {
         
         select.innerHTML = '<option value="">Выберите фонд</option>';
         filterSelect.innerHTML = '<option value="">Все фонды</option>';
+        debtorFilterSelect.innerHTML = '<option value="all">Все фонды</option>';
         funds.forEach(f => {
             const opt1 = document.createElement('option');
             opt1.value = f;
@@ -1822,7 +1944,16 @@ function refreshFundsUI() {
             opt2.value = f;
             opt2.textContent = f;
             filterSelect.appendChild(opt2);
+            
+            const opt3 = document.createElement('option');
+            opt3.value = f;
+            opt3.textContent = f;
+            debtorFilterSelect.appendChild(opt3);
         });
+        
+        // Обновляем категории расходов
+        populateExpenseCategories();
+        
     } catch(e) {
         console.error('❌ Ошибка refreshFundsUI:', e);
     }
@@ -1886,6 +2017,100 @@ function refreshFeesUI() {
     }
 }
 
+// === ДОЛЖНИКИ ===
+function renderDebtors(fundFilter, minDebt) {
+    try {
+        const container = document.getElementById('debtorList');
+        const summaryContainer = document.getElementById('debtorSummary');
+        
+        const debtors = calculateDebtors(fundFilter, minDebt);
+        
+        if (debtors.length === 0) {
+            const hasFees = getFees().length > 0;
+            if (!hasFees) {
+                summaryContainer.innerHTML = '<p style="color:#999;">Взносы не установлены</p>';
+            } else {
+                summaryContainer.innerHTML = '<p style="color:#999;">Нет должников</p>';
+            }
+            container.innerHTML = `
+                <div class="empty-state" style="padding:20px; text-align:center;">
+                    <div class="icon" style="font-size:48px;">✅</div>
+                    <p style="color:#27ae60; font-weight:600;">Все ученики оплатили взносы!</p>
+                </div>
+            `;
+            return;
+        }
+        
+        const totalDebt = debtors.reduce((sum, d) => sum + d.totalDebt, 0);
+        const totalFee = debtors.reduce((sum, d) => sum + d.totalFee, 0);
+        const totalPaid = debtors.reduce((sum, d) => sum + d.totalPaid, 0);
+        
+        summaryContainer.innerHTML = `
+            <div class="debt-item">
+                <div class="amount" style="color:#e74c3c;">${debtors.length}</div>
+                <div class="label">👨‍👩‍👧‍👦 Должников</div>
+            </div>
+            <div class="debt-item">
+                <div class="amount" style="color:#e74c3c;">${totalDebt.toFixed(2)} ₽</div>
+                <div class="label">Общая задолженность</div>
+            </div>
+            <div class="debt-item">
+                <div class="amount">${totalFee.toFixed(2)} ₽</div>
+                <div class="label">Общая сумма взносов</div>
+            </div>
+            <div class="debt-item">
+                <div class="amount" style="color:#27ae60;">${totalPaid.toFixed(2)} ₽</div>
+                <div class="label">Уже внесено</div>
+            </div>
+        `;
+        
+        let html = '';
+        debtors.forEach((d, index) => {
+            let amountClass = 'high';
+            let badgeClass = 'debt-high';
+            let badgeText = '🔴 Крупный долг';
+            
+            if (d.totalDebt < 1000) {
+                amountClass = 'low';
+                badgeClass = 'debt-low';
+                badgeText = '🟢 Небольшой долг';
+            } else if (d.totalDebt < 2000) {
+                amountClass = 'medium';
+                badgeClass = 'debt-medium';
+                badgeText = '🟡 Средний долг';
+            }
+            
+            const fundDetailsHtml = d.fundDetails.map(fd => 
+                `<span class="fund-tag">${fd.fund}: ${fd.debt.toFixed(2)} ₽</span>`
+            ).join(' ');
+            
+            html += `
+                <div class="debtor-item">
+                    <div>
+                        <div class="debtor-name">
+                            ${index + 1}. ${d.childName}
+                            <span class="badge ${badgeClass} debtor-badge">${badgeText}</span>
+                        </div>
+                        <div class="debtor-details">
+                            Обязательно: ${d.totalFee.toFixed(2)} ₽ • Внесено: ${d.totalPaid.toFixed(2)} ₽
+                        </div>
+                        <div style="margin-top:4px;">
+                            ${fundDetailsHtml}
+                        </div>
+                    </div>
+                    <div class="debtor-amount ${amountClass}">
+                        ${d.totalDebt.toFixed(2)} ₽
+                    </div>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+    } catch(e) {
+        console.error('❌ Ошибка renderDebtors:', e);
+    }
+}
+
 function refreshUI() {
     try {
         console.log('🔄 Полное обновление UI...');
@@ -1899,6 +2124,10 @@ function refreshUI() {
         refreshFundsUI();
         refreshFeesUI();
         renderBirthdays();
+        renderDebtors(
+            document.getElementById('debtorFilterFund').value || 'all',
+            parseFloat(document.getElementById('debtorFilterMin').value) || 0
+        );
         console.log('✅ UI обновлён');
     } catch(e) {
         console.error('❌ Ошибка refreshUI:', e);
@@ -2147,15 +2376,13 @@ function openEditModal(id) {
                 </div>
             `;
         } else {
+            const funds = getFunds();
             html += `
                 <div class="form-group">
-                    <label>Категория</label>
+                    <label>Категория (из фондов)</label>
                     <select id="editCategory">
-                        <option value="Канцтовары" ${transaction.category === 'Канцтовары' ? 'selected' : ''}>Канцтовары</option>
-                        <option value="Подарки" ${transaction.category === 'Подарки' ? 'selected' : ''}>Подарки</option>
-                        <option value="Мероприятия" ${transaction.category === 'Мероприятия' ? 'selected' : ''}>Мероприятия</option>
-                        <option value="Хознужды" ${transaction.category === 'Хознужды' ? 'selected' : ''}>Хознужды</option>
-                        <option value="Прочее" ${transaction.category === 'Прочее' ? 'selected' : ''}>Прочее</option>
+                        <option value="">Выберите категорию</option>
+                        ${funds.map(f => `<option value="${f}" ${f === transaction.category ? 'selected' : ''}>${f}</option>`).join('')}
                     </select>
                 </div>
                 <div class="form-group">
@@ -2180,6 +2407,310 @@ function formatDate(dateStr) {
     if (!dateStr) return '—';
     const parts = dateStr.split('-');
     return `${parts[2]}.${parts[1]}.${parts[0]}`;
+}
+
+// === ГЕНЕРАЦИЯ ОТЧЁТА ===
+function generateReport(from, to) {
+    try {
+        const div = document.getElementById('reportResult');
+        const summaryDiv = document.getElementById('reportSummary');
+        const fundsDiv = document.getElementById('reportFundsSummary');
+        
+        let list = getTransactions();
+        
+        if (from) list = list.filter(t => t.date >= from);
+        if (to) list = list.filter(t => t.date <= to);
+        
+        if (list.length === 0) {
+            summaryDiv.innerHTML = '<p style="color:#999;">Нет операций за выбранный период</p>';
+            fundsDiv.innerHTML = '';
+            div.innerHTML = '';
+            return;
+        }
+        
+        // === ОБЩАЯ СТАТИСТИКА ===
+        let income = 0, expense = 0;
+        list.forEach(t => { 
+            if (t.type === 'income') income += t.amount; 
+            else expense += t.amount; 
+        });
+        const balance = income - expense;
+        
+        let periodLabel = '';
+        if (from && to) {
+            periodLabel = `${from} — ${to}`;
+        } else if (from) {
+            periodLabel = `с ${from}`;
+        } else if (to) {
+            periodLabel = `по ${to}`;
+        } else {
+            periodLabel = 'За всё время';
+        }
+        
+        summaryDiv.innerHTML = `
+            <div style="background:#f1f4f9;padding:12px;border-radius:8px;margin-bottom:12px;">
+                <div style="display:flex; flex-wrap:wrap; gap:12px; font-size:13px;">
+                    <div><strong>📅 Период:</strong> ${periodLabel}</div>
+                    <div><strong>📈 Приходов:</strong> <span style="color:#27ae60;font-weight:700;">${income.toFixed(2)} ₽</span></div>
+                    <div><strong>📉 Расходов:</strong> <span style="color:#e74c3c;font-weight:700;">${expense.toFixed(2)} ₽</span></div>
+                    <div><strong>💰 Баланс:</strong> <span style="font-weight:700;color:${balance>=0?'#27ae60':'#e74c3c'};">${balance.toFixed(2)} ₽</span></div>
+                    <div><strong>📊 Всего:</strong> ${list.length}</div>
+                </div>
+            </div>
+        `;
+        
+        // === СТАТИСТИКА ПО ФОНДАМ ===
+        const funds = getFunds();
+        const children = getChildren();
+        const allTransactions = getTransactions();
+        const fundStats = [];
+        
+        funds.forEach(fund => {
+            // Приходы по этому фонду за период
+            const fundIncomes = list.filter(t => t.type === 'income' && t.fund === fund);
+            const fundIncomeSum = fundIncomes.reduce((sum, t) => sum + t.amount, 0);
+            
+            // Расходы по этому фонду за период (категория = фонд)
+            const fundExpenses = list.filter(t => t.type === 'expense' && t.category === fund);
+            const fundExpenseSum = fundExpenses.reduce((sum, t) => sum + t.amount, 0);
+            
+            // Все приходы по фонду (за всё время)
+            const allFundIncomes = allTransactions.filter(t => t.type === 'income' && t.fund === fund);
+            const allFundIncomeSum = allFundIncomes.reduce((sum, t) => sum + t.amount, 0);
+            
+            // Все расходы по фонду (за всё время) - категория = фонд
+            const allFundExpenses = allTransactions.filter(t => t.type === 'expense' && t.category === fund);
+            const allFundExpenseSum = allFundExpenses.reduce((sum, t) => sum + t.amount, 0);
+            
+            // Текущий остаток по фонду
+            const currentBalance = allFundIncomeSum - allFundExpenseSum;
+            
+            // Взносы по этому фонду
+            const feeData = getFees().filter(f => f.fund === fund);
+            
+            // Количество учеников в классе
+            const totalStudents = children.length;
+            
+            // Сумма взноса на одного человека (берем первую запись, если несколько - среднюю)
+            let perPersonAmount = 0;
+            if (feeData.length > 0) {
+                // Если взносов несколько, берем сумму всех взносов на одного человека
+                // (предполагаем, что каждый взнос применяется ко всем ученикам)
+                perPersonAmount = feeData.reduce((sum, f) => sum + f.amount, 0);
+            }
+            
+            // Плановый сбор со всего класса = сумма взноса на одного человека × количество учеников
+            const totalPlanned = perPersonAmount * totalStudents;
+            
+            // Сумма взноса на одного человека для отображения
+            let perPersonDisplay = '';
+            if (feeData.length > 0) {
+                const amounts = feeData.map(f => f.amount);
+                if (amounts.length === 1) {
+                    perPersonDisplay = amounts[0].toFixed(2) + ' ₽';
+                } else {
+                    perPersonDisplay = amounts.map(a => a.toFixed(2) + ' ₽').join(' + ');
+                }
+            }
+            
+            // Периоды взносов
+            const periods = feeData.map(f => f.period);
+            const uniquePeriods = [...new Set(periods)];
+            const periodLabels = {
+                'monthly': 'ежемесячно',
+                'quarterly': 'ежеквартально',
+                'halfyear': 'за полугодие',
+                'yearly': 'ежегодно',
+                'once': 'разово'
+            };
+            const periodDisplay = uniquePeriods.map(p => periodLabels[p] || p).join(', ');
+            
+            // Общая оплаченная сумма по этому фонду (все транзакции)
+            const totalPaid = allTransactions
+                .filter(t => t.type === 'income' && t.fund === fund)
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            // Задолженность = Плановый сбор - Собрано
+            const totalDebt = totalPlanned - totalPaid;
+            
+            // Количество детей с задолженностью по этому фонду
+            let debtorsCount = 0;
+            children.forEach(child => {
+                const childPaid = allTransactions
+                    .filter(t => t.type === 'income' && 
+                        t.childId === child.id && 
+                        t.fund === fund)
+                    .reduce((sum, t) => sum + t.amount, 0);
+                
+                // Плановая сумма для этого ребёнка по этому фонду
+                let childPlanned = 0;
+                feeData.forEach(f => {
+                    childPlanned += f.amount;
+                });
+                
+                if (childPlanned > childPaid) {
+                    debtorsCount++;
+                }
+            });
+            
+            // Добавляем только если есть хоть какие-то данные по фонду
+            if (totalPlanned > 0 || totalPaid > 0 || currentBalance !== 0 || fundIncomeSum > 0 || fundExpenseSum > 0) {
+                fundStats.push({
+                    name: fund,
+                    planned: totalPlanned,
+                    perPerson: perPersonDisplay,
+                    period: periodDisplay,
+                    income: fundIncomeSum,
+                    expense: fundExpenseSum,
+                    balance: currentBalance,
+                    paid: totalPaid,
+                    debt: totalDebt,
+                    debtorsCount: debtorsCount,
+                    feeCount: feeData.length,
+                    feeDetails: feeData,
+                    totalStudents: totalStudents
+                });
+            }
+        });
+        
+        if (fundStats.length > 0) {
+            let fundsHtml = `
+                <div style="margin-top:12px; margin-bottom:12px;">
+                    <h4 style="font-size:14px; margin-bottom:8px;">📊 Статистика по фондам</h4>
+                    <div class="report-fund-summary">
+            `;
+            
+            fundStats.forEach(f => {
+                const balanceColor = f.balance >= 0 ? '#27ae60' : '#e74c3c';
+                const debtColor = f.debt > 0 ? '#e74c3c' : '#27ae60';
+                
+                // Детали по периодам взносов
+                let feeDetailsHtml = '';
+                if (f.feeDetails.length > 0) {
+                    const grouped = {};
+                    f.feeDetails.forEach(fee => {
+                        const key = fee.period;
+                        if (!grouped[key]) grouped[key] = [];
+                        grouped[key].push(fee);
+                    });
+                    
+                    const periodLabels2 = {
+                        'monthly': 'ежемесячно',
+                        'quarterly': 'ежеквартально',
+                        'halfyear': 'за полугодие',
+                        'yearly': 'ежегодно',
+                        'once': 'разово'
+                    };
+                    
+                    feeDetailsHtml = Object.keys(grouped).map(period => {
+                        const fees = grouped[period];
+                        const amounts = fees.map(f => f.amount);
+                        let amountStr = '';
+                        if (amounts.length === 1) {
+                            amountStr = amounts[0].toFixed(2) + ' ₽';
+                        } else {
+                            amountStr = amounts.map(a => a.toFixed(2) + ' ₽').join(' + ');
+                        }
+                        return `<span style="font-size:11px; color:#888; margin-right:8px;">${periodLabels2[period] || period}: ${amountStr}</span>`;
+                    }).join('');
+                }
+                
+                fundsHtml += `
+                    <div class="fund-card" style="padding:16px; background:#fff; border-radius:8px; border:1px solid #e9ecf0;">
+                        <div class="fund-name" style="font-weight:700; font-size:16px; color:#2c3e50; margin-bottom:6px;">
+                            ${f.name}
+                            ${f.feeCount > 0 ? `<span class="badge fund" style="margin-left:8px; font-size:10px;">${f.feeCount} взн.</span>` : ''}
+                            ${f.debtorsCount > 0 ? `<span class="badge debt-high" style="margin-left:8px; font-size:10px;">${f.debtorsCount} долж.</span>` : ''}
+                        </div>
+                        <div style="font-size:12px; color:#888; margin-bottom:6px;">
+                            ${f.period ? `Периодичность: ${f.period}` : ''}
+                            ${f.perPerson ? ` • На человека: ${f.perPerson}` : ''}
+                            ${f.totalStudents ? ` • Учеников: ${f.totalStudents}` : ''}
+                        </div>
+                        ${feeDetailsHtml ? `<div style="font-size:11px; color:#888; margin-bottom:6px;">${feeDetailsHtml}</div>` : ''}
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px 16px; font-size:13px; background:#f8f9fc; padding:8px 12px; border-radius:6px;">
+                            <div style="color:#555;">📋 Плановый сбор (класс):</div>
+                            <div style="font-weight:600; text-align:right;">${f.planned.toFixed(2)} ₽</div>
+                            
+                            <div style="color:#555;">📈 Собрано (приходы):</div>
+                            <div style="font-weight:600; color:#27ae60; text-align:right;">${f.paid.toFixed(2)} ₽</div>
+                            
+                            <div style="color:#555;">📉 Расходы:</div>
+                            <div style="font-weight:600; color:#e74c3c; text-align:right;">${f.expense.toFixed(2)} ₽</div>
+                            
+                            <div style="color:#555; border-top:1px solid #e0e0e0; padding-top:4px;">💰 Остаток:</div>
+                            <div style="font-weight:700; color:${balanceColor}; border-top:1px solid #e0e0e0; padding-top:4px; text-align:right;">${f.balance.toFixed(2)} ₽</div>
+                            
+                            <div style="color:#555;">📌 Задолженность:</div>
+                            <div style="font-weight:700; color:${debtColor}; text-align:right;">${f.debt.toFixed(2)} ₽</div>
+                        </div>
+                        <div style="margin-top:6px; font-size:11px; color:#999; border-top:1px solid #f0f0f0; padding-top:6px;">
+                            За период: приход ${f.income.toFixed(2)} ₽, расход ${f.expense.toFixed(2)} ₽
+                        </div>
+                    </div>
+                `;
+            });
+            
+            fundsHtml += `
+                    </div>
+                </div>
+            `;
+            fundsDiv.innerHTML = fundsHtml;
+        } else {
+            fundsDiv.innerHTML = '<p style="color:#999; font-size:13px;">Нет данных по фондам</p>';
+        }
+        
+        // === ДЕТАЛЬНЫЙ ОТЧЁТ ПО ОПЕРАЦИЯМ ===
+        let html = `
+            <div style="margin-top:12px;">
+                <h4 style="font-size:14px; margin-bottom:8px;">📋 Детальный отчёт</h4>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Дата</th><th>Тип</th><th>Фонд</th><th>Сумма</th><th>Описание</th><th>Чек</th></tr></thead>
+                        <tbody>`;
+        
+        const sorted = list.slice().sort((a,b) => a.date.localeCompare(b.date));
+        sorted.forEach(t => {
+            const typeLabel = t.type === 'income' ? 'Приход' : 'Расход';
+            const badge = t.type === 'income' ? 'income' : 'expense';
+            let desc = '';
+            let fileHtml = '—';
+            let fundName = '';
+            
+            if (t.type === 'income') {
+                const child = findChild(t.childId);
+                const childName = child ? child.name : 'неизвестный ученик';
+                desc = `${childName} — от: ${t.parentName || 'не указан'}` + (t.comment ? ' ('+t.comment+')' : '');
+                fundName = t.fund || 'Общий сбор';
+                if (t.files && t.files.length > 0) {
+                    const idStr = t.id.toString();
+                    fileHtml = `<span style="cursor:pointer;color:#4f8cf7;text-decoration:underline;" onclick="showFilePreview('${idStr}')">📎 ${t.files.length}</span>`;
+                }
+            } else {
+                desc = (t.description || '') + ' (' + (t.category || 'без категории') + ')';
+                fundName = t.category || 'без категории';
+                if (t.files && t.files.length > 0) {
+                    const idStr = t.id.toString();
+                    fileHtml = `<span style="cursor:pointer;color:#4f8cf7;text-decoration:underline;" onclick="showFilePreview('${idStr}')">📎 ${t.files.length}</span>`;
+                }
+            }
+            
+            html += `<tr>
+                <td>${t.date}</td>
+                <td><span class="badge ${badge}">${typeLabel}</span></td>
+                <td><span class="fund-tag">${fundName}</span></td>
+                <td>${t.amount.toFixed(2)} ₽</td>
+                <td>${desc}</td>
+                <td>${fileHtml}</td>
+            </tr>`;
+        });
+        html += '</tbody></table></div></div>';
+        div.innerHTML = html;
+        
+    } catch(err) {
+        console.error('❌ Ошибка генерации отчёта:', err);
+        alert('Ошибка: ' + err.message);
+    }
 }
 
 // === ИНИЦИАЛИЗАЦИЯ ===
@@ -2208,6 +2739,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (tabId === 'tabAddIncome') { refreshIncomeParentsUI(); renderRecentIncomes(); }
                     if (tabId === 'tabAddExpense') { renderRecentExpenses(); }
                     if (tabId === 'tabBirthdays') { renderBirthdays(); }
+                    if (tabId === 'tabDebtors') { 
+                        renderDebtors(
+                            document.getElementById('debtorFilterFund').value || 'all',
+                            parseFloat(document.getElementById('debtorFilterMin').value) || 0
+                        );
+                    }
+                    if (tabId === 'tabReport') {
+                        generateReport(
+                            document.getElementById('reportFrom').value,
+                            document.getElementById('reportTo').value
+                        );
+                    }
                 } catch(err) {
                     console.error('❌ Ошибка при переключении вкладки:', err);
                 }
@@ -2293,6 +2836,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 setFee(fund, period, month, amount);
                 refreshFeesUI();
+                refreshDebtorsUI();
                 alert('✅ Взнос установлен!');
             } catch(err) {
                 console.error('❌ Ошибка установки взноса:', err);
@@ -2324,6 +2868,19 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('debtFilterAll').className = 'btn btn-outline btn-sm';
             document.getElementById('debtFilterDebtors').className = 'btn btn-filter btn-sm';
             refreshFeesUI();
+        });
+
+        // === ФИЛЬТРЫ ДОЛЖНИКОВ ===
+        document.getElementById('debtorFilterApply').addEventListener('click', function() {
+            const fund = document.getElementById('debtorFilterFund').value;
+            const minDebt = parseFloat(document.getElementById('debtorFilterMin').value) || 0;
+            renderDebtors(fund, minDebt);
+        });
+        
+        document.getElementById('debtorFilterClear').addEventListener('click', function() {
+            document.getElementById('debtorFilterFund').value = 'all';
+            document.getElementById('debtorFilterMin').value = '';
+            renderDebtors('all', 0);
         });
 
         document.getElementById('incomeChild').addEventListener('change', function() {
@@ -2448,7 +3005,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     alert('Введите сумму'); 
                     return; 
                 }
-                const category = document.getElementById('expenseCategory').value;
+                
+                const fund = document.getElementById('expenseCategory').value;
+                if (!fund) {
+                    alert('Выберите категорию расхода (фонд)');
+                    return;
+                }
+                
                 const description = document.getElementById('expenseDescription').value.trim() || 'без описания';
                 const date = document.getElementById('expenseDate').value || new Date().toISOString().split('T')[0];
                 
@@ -2461,7 +3024,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 addTransaction({
                     type: 'expense',
                     amount: amount,
-                    category: category,
+                    category: fund,
                     description: description,
                     date: date,
                     files: files
@@ -2548,85 +3111,6 @@ document.addEventListener('DOMContentLoaded', function() {
             refreshUI();
         });
 
-        function generateReport(from, to) {
-            try {
-                let list = getTransactions();
-                
-                if (from) list = list.filter(t => t.date >= from);
-                if (to) list = list.filter(t => t.date <= to);
-                
-                const div = document.getElementById('reportResult');
-                if (list.length === 0) { 
-                    div.innerHTML = '<p style="color:#999;">Нет операций за выбранный период</p>'; 
-                    return; 
-                }
-                
-                let income = 0, expense = 0;
-                list.forEach(t => { 
-                    if (t.type === 'income') income += t.amount; 
-                    else expense += t.amount; 
-                });
-                const balance = income - expense;
-                
-                let periodLabel = '';
-                if (from && to) {
-                    periodLabel = `${from} — ${to}`;
-                } else if (from) {
-                    periodLabel = `с ${from}`;
-                } else if (to) {
-                    periodLabel = `по ${to}`;
-                } else {
-                    periodLabel = 'За всё время';
-                }
-                
-                let html = `
-                    <div style="background:#f1f4f9;padding:12px;border-radius:8px;margin-bottom:12px;">
-                        <div style="display:flex; flex-wrap:wrap; gap:12px; font-size:13px;">
-                            <div><strong>📅 Период:</strong> ${periodLabel}</div>
-                            <div><strong>📈 Приходов:</strong> <span style="color:#27ae60;font-weight:700;">${income.toFixed(2)} ₽</span></div>
-                            <div><strong>📉 Расходов:</strong> <span style="color:#e74c3c;font-weight:700;">${expense.toFixed(2)} ₽</span></div>
-                            <div><strong>💰 Баланс:</strong> <span style="font-weight:700;color:${balance>=0?'#27ae60':'#e74c3c'};">${balance.toFixed(2)} ₽</span></div>
-                            <div><strong>📊 Всего:</strong> ${list.length}</div>
-                        </div>
-                    </div>
-                    <div class="table-wrapper">
-                        <table>
-                            <thead><tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>Описание</th><th>Чек</th></tr></thead>
-                            <tbody>`;
-                
-                const sorted = list.slice().sort((a,b) => a.date.localeCompare(b.date));
-                sorted.forEach(t => {
-                    const typeLabel = t.type === 'income' ? 'Приход' : 'Расход';
-                    let desc = '';
-                    let fileHtml = '—';
-                    if (t.type === 'income') {
-                        const child = findChild(t.childId);
-                        const childName = child ? child.name : 'неизвестный ученик';
-                        desc = `${childName} — от: ${t.parentName || 'не указан'}` + (t.comment ? ' ('+t.comment+')' : '');
-                        if (t.fund) desc += ` [${t.fund}]`;
-                    } else {
-                        desc = (t.description || '') + ' (' + (t.category || 'без категории') + ')';
-                        if (t.files && t.files.length > 0) {
-                            const idStr = t.id.toString();
-                            fileHtml = `<span style="cursor:pointer;color:#4f8cf7;text-decoration:underline;" onclick="showFilePreview('${idStr}')">📎 ${t.files.length}</span>`;
-                        }
-                    }
-                    html += `<tr>
-                        <td>${t.date}</td>
-                        <td><span class="badge ${t.type === 'income' ? 'income' : 'expense'}">${typeLabel}</span></td>
-                        <td>${t.amount.toFixed(2)} ₽</td>
-                        <td>${desc}</td>
-                        <td>${fileHtml}</td>
-                    </tr>`;
-                });
-                html += '</tbody></table></div>';
-                div.innerHTML = html;
-            } catch(err) {
-                console.error('❌ Ошибка генерации отчёта:', err);
-                alert('Ошибка: ' + err.message);
-            }
-        }
-
         document.querySelectorAll('.period-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const period = this.dataset.period;
@@ -2658,6 +3142,8 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('reportFrom').value = '';
             document.getElementById('reportTo').value = '';
             document.getElementById('reportResult').innerHTML = '';
+            document.getElementById('reportSummary').innerHTML = '';
+            document.getElementById('reportFundsSummary').innerHTML = '';
         });
 
         document.getElementById('exportBtn').addEventListener('click', function() {
@@ -2847,6 +3333,20 @@ document.addEventListener('DOMContentLoaded', function() {
         alert('⚠️ Критическая ошибка при запуске: ' + err.message + '\n\nСмотрите консоль (F12).');
     }
 });
+
+function refreshDebtorsUI() {
+    renderDebtors(
+        document.getElementById('debtorFilterFund').value || 'all',
+        parseFloat(document.getElementById('debtorFilterMin').value) || 0
+    );
+}
+
+// Добавляем вызов refreshDebtorsUI в refreshUI
+const originalRefreshUI = refreshUI;
+refreshUI = function() {
+    originalRefreshUI();
+    refreshDebtorsUI();
+};
 </script>
 </body>
 </html>
