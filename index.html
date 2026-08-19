@@ -13,7 +13,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <style>
-        /* ... все стили как в предыдущей версии ... */
+        /* Стили полностью сохранены из предыдущей версии */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -569,10 +569,19 @@
             </div>
         </div>
 
+        <!-- Общий баланс -->
         <div class="card" style="background:#eef3fc; padding:12px 16px;">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
-                <span style="font-size:16px; font-weight:600;">Баланс</span>
+                <span style="font-size:16px; font-weight:600;">💰 Общий баланс</span>
                 <span class="balance" id="balanceDisplay">0 ₽</span>
+            </div>
+        </div>
+
+        <!-- Блок балансов по сборам -->
+        <div id="balancesContainer" class="hidden">
+            <div class="card">
+                <h4 style="margin-bottom:8px;">📊 Балансы по сборам</h4>
+                <div id="balancesList"></div>
             </div>
         </div>
 
@@ -897,7 +906,7 @@ function getFundExpenses(fundName) {
     return expenses;
 }
 
-// === УДАЛЕНИЕ СБОРА (ОБНОВЛЁННАЯ) ===
+// === УДАЛЕНИЕ СБОРА ===
 function removeFund(fundName) {
     try {
         const data = loadData();
@@ -907,31 +916,19 @@ function removeFund(fundName) {
         }
         const status = getFundStatus(fundName);
         const balance = getFundBalance(fundName);
-
-        // Проверяем возможность удаления
         if (status.status === 'active' && balance !== 0) {
             alert('❌ Нельзя удалить активный фонд с ненулевым балансом. Сначала закройте сбор или обнулите баланс.');
             return false;
         }
-
-        // Дополнительное подтверждение для закрытых/архивных
         if (status.status === 'closed' || status.status === 'archived') {
-            if (!confirm(`⚠️ Вы уверены, что хотите удалить сбор "${fundName}"? Это действие нельзя отменить.`)) {
-                return false;
-            }
+            if (!confirm(`⚠️ Вы уверены, что хотите удалить сбор "${fundName}"? Это действие нельзя отменить.`)) return false;
         }
-
-        // Удаляем фонд
         data.funds = data.funds.filter(f => f !== fundName);
         data.fees = data.fees.filter(f => f.fund !== fundName);
         delete data.fundStatus[fundName];
         saveData(data);
         return true;
-    } catch(e) {
-        console.error('❌ Ошибка removeFund:', e);
-        alert('Ошибка: ' + e.message);
-        return false;
-    }
+    } catch(e) { console.error('❌ Ошибка removeFund:', e); alert('Ошибка: ' + e.message); return false; }
 }
 
 // === ЗАКРЫТИЕ, АРХИВ, ВОССТАНОВЛЕНИЕ, ПЕРЕВОД ===
@@ -1036,6 +1033,59 @@ function populateExpenseCategories() {
     } catch(e) { console.error('❌ Ошибка populateExpenseCategories:', e); }
 }
 
+// === РЕНДЕРИНГ БАЛАНСОВ ПО СБОРАМ ===
+function renderBalances() {
+    const container = document.getElementById('balancesContainer');
+    const list = document.getElementById('balancesList');
+    if (!container || !list) return;
+
+    const funds = getFunds();
+    const activeAndClosed = funds.filter(f => {
+        const status = getFundStatus(f);
+        return status.status === 'active' || status.status === 'closed';
+    });
+
+    if (activeAndClosed.length === 0) {
+        container.classList.add('hidden');
+        return;
+    }
+    container.classList.remove('hidden');
+
+    activeAndClosed.sort((a, b) => {
+        const sa = getFundStatus(a).status;
+        const sb = getFundStatus(b).status;
+        if (sa === 'active' && sb !== 'active') return -1;
+        if (sa !== 'active' && sb === 'active') return 1;
+        return a.localeCompare(b);
+    });
+
+    let html = '';
+    let total = 0;
+
+    activeAndClosed.forEach(f => {
+        const balance = getFundBalance(f);
+        total += balance;
+        const status = getFundStatus(f);
+        const icon = status.status === 'active' ? '🟢' : '🔴';
+        const color = balance >= 0 ? '#27ae60' : '#e74c3c';
+        html += `
+            <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f0f0f0; font-size:14px;">
+                <span>${icon} ${f}</span>
+                <span style="font-weight:600; color:${color};">${balance.toFixed(2)} ₽</span>
+            </div>
+        `;
+    });
+
+    html += `
+        <div style="display:flex; justify-content:space-between; padding:10px 0 0 0; border-top:2px solid #ddd; margin-top:4px; font-weight:700; font-size:15px;">
+            <span>📊 Итого по сборам:</span>
+            <span style="color:${total >= 0 ? '#27ae60' : '#e74c3c'};">${total.toFixed(2)} ₽</span>
+        </div>
+    `;
+
+    list.innerHTML = html;
+}
+
 // === РЕНДЕРИНГ ФОНДОВ (ОБНОВЛЁННЫЙ С КНОПКОЙ УДАЛЕНИЯ) ===
 function renderFunds() {
     try {
@@ -1052,7 +1102,6 @@ function renderFunds() {
 
         let html = '';
 
-        // Активные сборы
         if (activeFunds.length > 0) {
             html += `<div style="margin-bottom:12px;"><strong style="font-size:14px;">🟢 Активные сборы</strong></div>`;
             html += `<div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:12px;">`;
@@ -1086,7 +1135,6 @@ function renderFunds() {
             html += `</div>`;
         }
 
-        // Закрытые сборы
         if (closedFunds.length > 0) {
             html += `<div style="margin:16px 0 8px 0;"><strong style="font-size:14px;">🔴 Закрытые сборы</strong></div>`;
             html += `<div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:12px;">`;
@@ -1121,7 +1169,6 @@ function renderFunds() {
 
         container.innerHTML = html;
 
-        // Обработчики
         container.querySelectorAll('.close-fund-btn').forEach(btn => {
             btn.addEventListener('click', function() { openCloseFundModal(this.dataset.fund); });
         });
@@ -1137,14 +1184,11 @@ function renderFunds() {
         container.querySelectorAll('.view-fund-btn').forEach(btn => {
             btn.addEventListener('click', function() { showFundDetails(this.dataset.fund); });
         });
-        // Новая кнопка удаления
         container.querySelectorAll('.remove-fund-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const fundName = this.dataset.fund;
                 const status = getFundStatus(fundName);
                 const balance = getFundBalance(fundName);
-                let msg = `Удалить сбор "${fundName}"?`;
-                if (balance !== 0) msg += `\n⚠️ Баланс сбора: ${balance.toFixed(2)} ₽.`;
                 if (status.status === 'active' && balance !== 0) {
                     alert('❌ Нельзя удалить активный сбор с ненулевым балансом. Сначала закройте сбор или обнулите баланс.');
                     return;
@@ -1152,13 +1196,14 @@ function renderFunds() {
                 if (status.status === 'closed' || status.status === 'archived') {
                     if (!confirm(`⚠️ Вы уверены, что хотите удалить сбор "${fundName}"? Это действие нельзя отменить.`)) return;
                 } else {
-                    if (!confirm(msg)) return;
+                    if (!confirm(`Удалить сбор "${fundName}"?`)) return;
                 }
                 if (removeFund(fundName)) {
                     refreshFundsUI();
                     refreshFeesUI();
                     renderDebtors();
                     renderArchive();
+                    renderBalances();
                 }
             });
         });
@@ -1479,6 +1524,7 @@ function renderArchive() {
                     refreshFeesUI();
                     renderDebtors();
                     renderArchive();
+                    renderBalances();
                 }
             });
         });
@@ -1946,6 +1992,7 @@ function refreshFundsUI() {
                         refreshFeesUI();
                         renderDebtors();
                         renderArchive();
+                        renderBalances();
                     }
                 });
             });
@@ -2262,6 +2309,7 @@ function exportForParents() {
     } catch(err) { console.error('❌ Ошибка экспорта для родителей:', err); alert('Ошибка: ' + err.message); }
 }
 
+// === ОСНОВНАЯ ФУНКЦИЯ ОБНОВЛЕНИЯ UI ===
 function refreshUI() {
     try {
         console.log('🔄 Полное обновление UI...');
@@ -2277,6 +2325,7 @@ function refreshUI() {
         renderBirthdays();
         renderDebtors(document.getElementById('debtorFilterFund').value || 'all', parseFloat(document.getElementById('debtorFilterMin').value) || 0);
         renderArchive();
+        renderBalances(); // Новая функция
         console.log('✅ UI обновлён');
     } catch(e) { console.error('❌ Ошибка refreshUI:', e); alert('Ошибка обновления интерфейса: ' + e.message); }
 }
